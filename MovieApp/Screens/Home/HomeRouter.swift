@@ -14,17 +14,17 @@ protocol HomeRouterInterface {
     var entry: EntryPointHome? { get set }
     var presenter: HomePresenterInterface? { get set }
     static func createModule() -> UIViewController
-//    func navigateToMovieDetailScreen(with movieData: MovieResult)
 }
 
 class HomeRouter: HomeRouterInterface {
+        
     var entry: EntryPointHome?
     var presenter: HomePresenterInterface?
     var homeView: HomeViewController = HomeViewController()
     
     static func createModule() -> UIViewController {
         let router = HomeRouter()
-        var view = HomeViewController()
+        let view = HomeViewController()
         var presenter: HomePresenterInterface = HomePresenter()
         var interactor: HomeInteractorInterface = HomeInteractor()
 
@@ -38,9 +38,5 @@ class HomeRouter: HomeRouterInterface {
         return view
     }
     
-//    func navigateToMovieDetailScreen(with movieData: MovieResult) {
-//        let movieDetailVC = MovieDetailsViewController()
-//        homeView.navigationController?.pushViewController(movieDetailVC, animated: true)
-//    }
 }
 

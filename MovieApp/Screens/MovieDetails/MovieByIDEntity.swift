@@ -10,7 +10,7 @@ import Foundation
 struct MovieByIDEntity: Codable {
     let adult: Bool
     let backdropPath: String
-    let belongsToCollection: BelongsToStruct
+    let belongsToCollection: BelongsToStruct?
     let budget: Int
     let genres: [Genres]
     let homepage: String
@@ -95,4 +95,18 @@ struct SpokenLanguages: Codable {
         case iso_639_1, name
         case englishName = "english_name"
     }
+}
+
+struct MovieTVDetailsModel {
+    let image: String
+    let title: String
+    let genre: String
+    let voteCount: String
+    let voteAvg: Double
+    let date: String
+    let description: String
+    let runtime: String?
+    let language: String?
+    let episodes: String?
+    let seasons: String?
 }

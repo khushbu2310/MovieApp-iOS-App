@@ -23,7 +23,7 @@ class MovieAppTabBarController: UITabBarController {
         setupTabs()
         setupNavBarAppearance()
         setupTabBarAppearance()
-        self.viewControllers = [UINavigationController(rootViewController: homeVC), UINavigationController(rootViewController: movieVC), UINavigationController(rootViewController: tvShowsVC)]
+        self.viewControllers = [UINavigationController(rootViewController: homeVC), movieVC, tvShowsVC]
         self.tabBar.tintColor = .red
         self.tabBar.unselectedItemTintColor = .white
     }

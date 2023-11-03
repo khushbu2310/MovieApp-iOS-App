@@ -37,6 +37,7 @@ class MovieViewController: UIViewController, MovieViewInterface {
         setupTitle()
         setupConstraints()
         presenter?.getPopularMovieList()
+        movieCollectionView.delegate = self
     }
     
     func setupUI() {
@@ -76,8 +77,8 @@ class MovieViewController: UIViewController, MovieViewInterface {
     }
 }
 
-extension MovieViewController: CellActionProtocol {
-    func cellClicked() {
-        presenter?.gotoMovieDetails(id: 500)
+extension MovieViewController: CellActionDelegate {
+    func cellClicked(indexPath: IndexPath) {
+        presenter?.navigateToMovieDetails(indexPath: indexPath)
     }
 }

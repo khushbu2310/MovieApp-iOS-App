@@ -9,15 +9,12 @@ import Foundation
 import UIKit
 
 protocol ColletionViewInterface {
-    func popularMovieSuccess(cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol)
-    func topRatedMovieSuccess(cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol)
-    func upComingMovieSuccess(cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol)
-    func nowPlayingMovieSuccess(cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol)
+    func popularMovieSuccess(cellData: [CellDataObject])
+    func topRatedMovieSuccess(cellData: [CellDataObject])
+    func upComingMovieSuccess(cellData: [CellDataObject])
+    func nowPlayingMovieSuccess(cellData: [CellDataObject])
 }
 
-protocol CellActionProtocol {
-    func cellClicked()
-}
 class HomeTableViewCell: UITableViewCell, ColletionViewInterface {
     static let identifier = HomeTableViewCell.description()
     var popularMovieList: MovieResult?
@@ -53,32 +50,32 @@ class HomeTableViewCell: UITableViewCell, ColletionViewInterface {
         ])
     }
     
-    func popularMovieSuccess(cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol) {
+    func popularMovieSuccess(cellData: [CellDataObject]) {
         DispatchQueue.main.async {
-            self.movieCollectionView.configCellDetails(cellData: cellData, presenterDelegate: presenterDelegate)
+            self.movieCollectionView.configCellDetails(cellData: cellData)
         }
     }
     
-    func topRatedMovieSuccess(cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol) {
+    func topRatedMovieSuccess(cellData: [CellDataObject]) {
         DispatchQueue.main.async {
-            self.movieCollectionView.configCellDetails(cellData: cellData, presenterDelegate: presenterDelegate)
+            self.movieCollectionView.configCellDetails(cellData: cellData)
         }
     }
 
-    func upComingMovieSuccess(cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol) {
+    func upComingMovieSuccess(cellData: [CellDataObject]) {
         DispatchQueue.main.async {
-            self.movieCollectionView.configCellDetails(cellData: cellData, presenterDelegate: presenterDelegate)
+            self.movieCollectionView.configCellDetails(cellData: cellData)
         }
     }
     
-    func nowPlayingMovieSuccess(cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol) {
+    func nowPlayingMovieSuccess(cellData: [CellDataObject]) {
         DispatchQueue.main.async {
-            self.movieCollectionView.configCellDetails(cellData: cellData, presenterDelegate: presenterDelegate)
+            self.movieCollectionView.configCellDetails(cellData: cellData)
         }
     }
     
-    func configContent(cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol) {
-        self.movieCollectionView.configCellDetails(cellData: cellData, presenterDelegate: presenterDelegate)
+    func configContent(cellData: [CellDataObject]) {
+        self.movieCollectionView.configCellDetails(cellData: cellData)
     }
 }
 

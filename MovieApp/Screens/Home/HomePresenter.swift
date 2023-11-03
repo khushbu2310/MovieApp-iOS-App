@@ -76,28 +76,28 @@ class HomePresenter: HomePresenterInterface, GenreCollectionInterface {
     func getPopularMovieSuccess(movie: MovieResult) {
         self.popularMovieList = movie
         popularCellData = movie.ToCellObj()
-        collectionViewDelegate?.popularMovieSuccess(cellData: popularCellData, presenterDelegate: self)
+        collectionViewDelegate?.popularMovieSuccess(cellData: popularCellData)
         view?.reloadTableView()
     }
         
     func getTopRatedMovieSuccess(movie: MovieResult) {
         self.topRatedMovieList = movie
         topRatedCellData = movie.ToCellObj()
-        collectionViewDelegate?.topRatedMovieSuccess(cellData: topRatedCellData, presenterDelegate: self)
+        collectionViewDelegate?.topRatedMovieSuccess(cellData: topRatedCellData)
         view?.reloadTableView()
     }
     
     func getUpComingMovieSuccess(movie: MovieResult) {
         self.upComingMovieList = movie
         upComingCellData = movie.ToCellObj()
-        collectionViewDelegate?.upComingMovieSuccess(cellData: upComingCellData, presenterDelegate: self)
+        collectionViewDelegate?.upComingMovieSuccess(cellData: upComingCellData)
         view?.reloadTableView()
     }
     
     func getNowPlayingMovieSuccess(movie: MovieResult) {
         self.nowPlayingMovieList = movie
         nowPlayingCellData = movie.ToCellObj()
-        collectionViewDelegate?.nowPlayingMovieSuccess(cellData: nowPlayingCellData, presenterDelegate: self)
+        collectionViewDelegate?.nowPlayingMovieSuccess(cellData: nowPlayingCellData)
         view?.reloadTableView()
     }
     
@@ -130,10 +130,10 @@ class HomePresenter: HomePresenterInterface, GenreCollectionInterface {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: HomeTableViewCell.identifier, for: indexPath) as? HomeTableViewCell else { return UITableViewCell() }
         cell.movieCollectionView.tag = indexPath.section
         switch indexPath.section {
-        case 0: cell.configContent(cellData: popularCellData, presenterDelegate: self)
-        case 1: cell.configContent(cellData: topRatedCellData, presenterDelegate: self)
-        case 2: cell.configContent(cellData: upComingCellData, presenterDelegate: self)
-        case 3: cell.configContent(cellData: nowPlayingCellData, presenterDelegate: self)
+        case 0: cell.configContent(cellData: popularCellData)
+        case 1: cell.configContent(cellData: topRatedCellData)
+        case 2: cell.configContent(cellData: upComingCellData)
+        case 3: cell.configContent(cellData: nowPlayingCellData)
         default: break
         }
         
@@ -176,10 +176,4 @@ class HomePresenter: HomePresenterInterface, GenreCollectionInterface {
         }
     }
         
-}
-
-extension HomePresenter: CollectionViewToHomePresenterProtocol {
-    func navigateToPresenter(indexPath: IndexPath) {
-        print(indexPath)
-    }
 }

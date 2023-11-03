@@ -8,22 +8,20 @@
 import Foundation
 import UIKit
 
-typealias EntryPointMovie = MovieViewInterface & UIViewController
-
 protocol MovieRouterInterface {
-    var entry: EntryPointMovie? { get set }
+    var view: UINavigationController? { get set }
     var presenter: MoviePresenterInterface? { get set }
-    static func createModule() -> UIViewController
+    static func createModule() -> UINavigationController
+    func navigateToMovieDetails(movieId: Int?)
 }
 
 class MovieRouter: MovieRouterInterface {
-    
-    var entry: EntryPointMovie?
+    var view: UINavigationController?
     var presenter: MoviePresenterInterface?
-
-    static func createModule() -> UIViewController {
+    
+    static func createModule() -> UINavigationController {
         let router = MovieRouter()
-        var view = MovieViewController()
+        let view = MovieViewController()
         var presenter: MoviePresenterInterface = MoviePresenter()
         var interactor: MovieInteractorInterface = MovieInteractor()
         
@@ -33,7 +31,26 @@ class MovieRouter: MovieRouterInterface {
         presenter.view = view
         interactor.presenter = presenter
         router.presenter = presenter
-        router.entry = view
-        return view
+        let navigationController = UINavigationController(rootViewController: view)
+        router.view = navigationController
+        return navigationController
+        
+    }
+    
+    func navigateToMovieDetails(movieId: Int?) {
+        let movieDetailsVC = MovieDetailsRouter.createModule(movieId: movieId)
+        view?.pushViewController(movieDetailsVC, animated: true)
+        view?.navigationBar.prefersLargeTitles = false
+        movieDetailsVC.navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "arrow.left"), style: .done, target: self, action: #selector(backButtontapped(_:)))
+        movieDetailsVC.title = "Movie Details"
+        movieDetailsVC.navigationController?.navigationBar.tintColor = .white
+    }
+    
+    @objc private func backButtontapped(_ sender: UIViewController) {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.navigationBar.prefersLargeTitles = true
+            self?.view?.popViewController(animated: true)
+        }
+        
     }
 }

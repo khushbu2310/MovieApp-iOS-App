@@ -54,9 +54,9 @@ class MovieAppCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    func configureCellDetails(title: String, posterPath: String) {
-        let imagePath = Constants.imgBaseUrl + posterPath
+    func configureCellDetails(_ data: CellDataObject) {
+        let imagePath = Constants.imgBaseUrl + data.posterPath
         movieImage.setImage(with: imagePath)
-        movieLabel.text = "\(title)"
+        movieLabel.text = data.title
     }
 }

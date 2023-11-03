@@ -20,7 +20,7 @@ protocol MoviePresenterInterface {
     func setCollectionCell(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     func setCollectionViewCellCount(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
     
-    func gotoMovieDetails(id: Int)
+    func navigateToMovieDetails(indexPath: IndexPath)
 }
 
 protocol MoviePresenterToView {
@@ -28,7 +28,7 @@ protocol MoviePresenterToView {
 }
 
 class MoviePresenter: MoviePresenterInterface {
-        
+    
     var view: MovieViewInterface?
     var router: MovieRouterInterface?
     var interactor: MovieInteractorInterface?
@@ -51,7 +51,7 @@ class MoviePresenter: MoviePresenterInterface {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieAppCollectionViewCell.identifier, for: indexPath) as? MovieAppCollectionViewCell else { return UICollectionViewCell() }
         let title = popularMovieList?.results[indexPath.row].originalTitle ?? "Movie Name"
         let posterPath = popularMovieList?.results[indexPath.row].posterPath ?? ""
-        cell.configureCellDetails(title: title, posterPath: posterPath)
+        //        cell.configureCellDetails(popularMovieList?.results[indexPath.row])
         return cell
     }
     
@@ -59,7 +59,8 @@ class MoviePresenter: MoviePresenterInterface {
         popularMovieList?.results.count ?? 10
     }
     
-    func gotoMovieDetails(id: Int) {
-        //router call
+    func navigateToMovieDetails(indexPath: IndexPath) {
+        let movieId = popularMovieList?.results[indexPath.row].id
+        router?.navigateToMovieDetails(movieId: movieId)
     }
 }

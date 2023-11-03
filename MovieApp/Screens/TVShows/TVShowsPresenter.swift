@@ -45,7 +45,8 @@ class TVShowsPresenter: TVShowsPresenterInterface {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieAppCollectionViewCell.identifier, for: indexPath) as? MovieAppCollectionViewCell else { return UICollectionViewCell() }
         let title = popularTVShowList?.results[indexPath.row].originalName ?? "TV Show Name"
         let posterPath = popularTVShowList?.results[indexPath.row].posterPath ?? ""
-        cell.configureCellDetails(title: title, posterPath: posterPath)
+        let cellData = popularTVShowList?.ToCellObj()
+//        cell.configureCellDetails(popularTVShowList?.ToCellObj())
         return cell
     }
     

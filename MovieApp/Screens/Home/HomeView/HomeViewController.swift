@@ -107,6 +107,10 @@ class HomeViewController: UIViewController, HomeViewInterface {
     func setupUI() {
         view.addSubview(mainView)
         mainView.addSubview(movieTableView)
+        setupDelegates()
+    }
+    
+    func setupDelegates() {
         movieTableView.delegate = self
         movieTableView.dataSource = self
         genreCollectionView.delegate = self

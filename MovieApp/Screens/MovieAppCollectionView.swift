@@ -9,12 +9,8 @@ import Foundation
 import UIKit
 
 struct CellDataObject {
-    let title: String?
-    let posterPath: String?
-}
-
-protocol CollectionViewToHomePresenterProtocol {
-    func navigateToPresenter(indexPath: IndexPath)
+    let title: String
+    let posterPath: String
 }
 
 class MovieAppCollectionView: UIView {
@@ -22,8 +18,7 @@ class MovieAppCollectionView: UIView {
     var collectionView: UICollectionView!
     var layout: UICollectionViewFlowLayout!
     var cellData: [CellDataObject] = []
-    var presenterDelegate: CollectionViewToHomePresenterProtocol?
-    var type: String?
+    weak var delegate: CellActionDelegate?
     
     init(scrollDirection: UICollectionView.ScrollDirection) {
         super.init(frame: .zero)
@@ -64,9 +59,8 @@ class MovieAppCollectionView: UIView {
         ])
     }
     
-    func configCellDetails(type: String? = nil, cellData: [CellDataObject], presenterDelegate: CollectionViewToHomePresenterProtocol? = nil) {
+    func configCellDetails(cellData: [CellDataObject]) {
         self.cellData = cellData
-        self.presenterDelegate = presenterDelegate
         DispatchQueue.main.async {
             self.collectionView.reloadData()
         }
@@ -77,7 +71,7 @@ extension MovieAppCollectionView: UICollectionViewDelegate, UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieAppCollectionViewCell.identifier, for: indexPath) as? MovieAppCollectionViewCell else { return UICollectionViewCell() }
-        cell.configureCellDetails(title: cellData[indexPath.row].title ?? "Movie Name", posterPath: cellData[indexPath.row].posterPath ?? "")
+        cell.configureCellDetails(cellData[indexPath.row])
         return cell
     }
     
@@ -87,7 +81,11 @@ extension MovieAppCollectionView: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        presenterDelegate?.navigateToPresenter(type: type, indexPath: indexPath)
+        delegate?.cellClicked(indexPath: indexPath)
     }
     
+}
+
+protocol CellActionDelegate: AnyObject {
+    func cellClicked(indexPath: IndexPath)
 }
