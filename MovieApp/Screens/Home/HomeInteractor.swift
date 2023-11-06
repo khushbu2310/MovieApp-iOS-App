@@ -9,13 +9,11 @@ import Foundation
 
 protocol HomeInteractorInterface {
     var presenter: HomePresenterInterface? { get set }
-    func getPopularMovieData()
-    func getNowPlayingMovieData()
-    func getTopRatedMovieData()
-    func getUpComingMovieData()
+    func getMovieData(type: EndPointAPIType, movieType: MovieTypesEnum)
 }
 
 class HomeInteractor: HomeInteractorInterface {
+    
     var presenter: HomePresenterInterface?
     private let movieRepo: MovieRepositoryDelegate
     
@@ -23,47 +21,16 @@ class HomeInteractor: HomeInteractorInterface {
         self.movieRepo = movieRepo
     }
     
-    func getPopularMovieData() {
-        movieRepo.getMovieData(modelType: MovieResult.self, type: EndPointMovie.popularMovie) { [self] response in
+    func getMovieData(type: EndPointAPIType, movieType: MovieTypesEnum) {
+        movieRepo.getMovieData(modelType: MovieResult.self, type: type) { [self] response in
             switch response {
             case .success(let movie):
-                presenter?.getPopularMovieSuccess(movie: movie)
+                presenter?.getMovieSuccess(movie: movie, enumType: movieType)
             case .failure(let error):
-                presenter?.getPopularMovieFailure(error: error)
+                presenter?.getMovieFailure(error: error)
             }
         }
-    }
-    
-    func getNowPlayingMovieData() {
-        movieRepo.getMovieData(modelType: MovieResult.self, type: EndPointMovie.nowPlayingMovie) { [self] response in
-            switch response {
-            case .success(let movie):
-                presenter?.getNowPlayingMovieSuccess(movie: movie)
-            case .failure(let error):
-                presenter?.getNowPlayingMovieFailure(error: error)
-            }
-        }
+
     }
 
-    func getTopRatedMovieData() {
-        movieRepo.getMovieData(modelType: MovieResult.self, type: EndPointMovie.topRatedMovie) { [self] response in
-            switch response {
-            case .success(let movie):
-                presenter?.getTopRatedMovieSuccess(movie: movie)
-            case .failure(let error):
-                presenter?.getTopRatedMovieFailure(error: error)
-            }
-        }
-    }
-    
-    func getUpComingMovieData() {
-        movieRepo.getMovieData(modelType: MovieResult.self, type: EndPointMovie.upcomingMovie) { [self] response in
-            switch response {
-            case .success(let movie):
-                presenter?.getUpComingMovieSuccess(movie: movie)
-            case .failure(let error):
-                presenter?.getUpComingMovieFailure(error: error)
-            }
-        }
-    }
 }

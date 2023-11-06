@@ -8,21 +8,22 @@
 import Foundation
 import UIKit
 
-typealias EntryPointHome = HomeViewInterface & UIViewController
-
 protocol HomeRouterInterface {
-    var entry: EntryPointHome? { get set }
+    var view: UINavigationController? { get set }
     var presenter: HomePresenterInterface? { get set }
-    static func createModule() -> UIViewController
+    static func createModule() -> UINavigationController
+    
+    func navigateToMovies(data: MovieResult?, type: String)
+    var movieViewController: UINavigationController? { get set }
 }
 
 class HomeRouter: HomeRouterInterface {
         
-    var entry: EntryPointHome?
     var presenter: HomePresenterInterface?
-    var homeView: HomeViewController = HomeViewController()
+    var view: UINavigationController?
+    var movieViewController: UINavigationController?
     
-    static func createModule() -> UIViewController {
+    static func createModule() -> UINavigationController {
         let router = HomeRouter()
         let view = HomeViewController()
         var presenter: HomePresenterInterface = HomePresenter()
@@ -34,8 +35,17 @@ class HomeRouter: HomeRouterInterface {
         presenter.view = view
         interactor.presenter = presenter
         router.presenter = presenter
-        router.entry = view
-        return view
+        let nc = UINavigationController(rootViewController: view)
+        router.view = nc
+        return nc
+    }
+    
+    func navigateToMovies(data: MovieResult?, type: String) {
+        let movieVC = self.view?.tabBarController?.viewControllers?[1] as? UINavigationController
+        self.movieViewController = movieVC
+        let movieViewInterface = movieVC?.visibleViewController as? MovieViewInterface
+        movieViewInterface?.presenter?.configureMovies(data: data, type: type)
+        view?.tabBarController?.selectedIndex = 1
     }
     
 }

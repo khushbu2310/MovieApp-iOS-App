@@ -10,21 +10,10 @@ import UIKit
 
 protocol HomeViewInterface {
     var presenter: HomePresenterInterface? { get set }
-
+    func getMovieDataSuccess()
+    func getMovieDataFailure(error: Error)
     func reloadTableView()
-    
-    func popularMovieFailure(error: Error)
-    func topRatedMovieFailure(error: Error)
-    func upComingMovieFailure(error: Error)
-    func nowPlayingMovieFailure(error: Error)
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
-    func numberOfSections(in tableView: UITableView) -> Int
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView?
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
-
+    func setupHeaderData(lable: String, voteCount: String, image: String, voteAvg: Double)
 }
 
 class HomeViewController: UIViewController, HomeViewInterface {
@@ -48,15 +37,13 @@ class HomeViewController: UIViewController, HomeViewInterface {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleToFill
-        imageView.setImage(with: Constants.defaultImgUrl)
         return imageView
     }()
     
     private let headerLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Expendables"
-        label.font = .interMedium(size: 40)
+        label.font = .interMedium(size: 30)
         return label
     }()
     
@@ -72,7 +59,6 @@ class HomeViewController: UIViewController, HomeViewInterface {
     private let voteCountLabel: UILabel = {
         let voteLabel = UILabel()
         voteLabel.translatesAutoresizingMaskIntoConstraints = false
-        voteLabel.text = "469 Votes"
         voteLabel.font = .interLight(size: 15)
         return voteLabel
     }()
@@ -80,7 +66,7 @@ class HomeViewController: UIViewController, HomeViewInterface {
     let genreCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.itemSize = CGSize(width: 100, height: 30)
+        layout.itemSize = CGSize(width: 70, height: 25)
         layout.minimumLineSpacing = 20
         let genreCollection = UICollectionView(frame: .zero, collectionViewLayout: layout)
         genreCollection.register(GenreCollectionViewCell.self, forCellWithReuseIdentifier: GenreCollectionViewCell.identifier)
@@ -95,8 +81,7 @@ class HomeViewController: UIViewController, HomeViewInterface {
         setupTitle()
         setupUI()
         setupConstraints()
-        setupStarStack(fullStar: 3, halfStar: 2)
-        presenter?.getMovieList()
+        presenter?.getMoviesData()
     }
     
     func setupTitle() {
@@ -107,99 +92,102 @@ class HomeViewController: UIViewController, HomeViewInterface {
     func setupUI() {
         view.addSubview(mainView)
         mainView.addSubview(movieTableView)
-        setupDelegates()
-    }
-    
-    func setupDelegates() {
-        movieTableView.delegate = self
-        movieTableView.dataSource = self
-        genreCollectionView.delegate = self
-        genreCollectionView.dataSource = self
     }
     
     func setupConstraints() {
-        let header = UIView(frame: CGRect(x: 0, y: 0, width: mainView.frame.size.width, height: 350))
+        setupMainViewConstraints()
+        setupTableViewConstraints()
+    }
+            
+    func setupMainViewConstraints() {
+        NSLayoutConstraint.activate([
+            mainView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            mainView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            mainView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            mainView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
+    
+    func setupTableViewConstraints() {
+        NSLayoutConstraint.activate([
+            movieTableView.topAnchor.constraint(equalTo: mainView.topAnchor),
+            movieTableView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
+            movieTableView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
+            movieTableView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor)
+        ])
+        setupTableViewHeader()
+    }
+    
+    func setupTableViewHeader() {
+        let header = UIView(frame: CGRect(x: 0, y: 0, width: mainView.frame.size.width, height: 300))
         header.addSubview(headerImage)
         header.addSubview(headerLabel)
         header.addSubview(starStackView)
         header.addSubview(voteCountLabel)
         header.addSubview(genreCollectionView)
         movieTableView.tableHeaderView = header
+        movieTableView.delegate = self
+        movieTableView.dataSource = self
 
         NSLayoutConstraint.activate([
-            mainView.topAnchor.constraint(equalTo: view.topAnchor),
-            mainView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            mainView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            mainView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            movieTableView.topAnchor.constraint(equalTo: mainView.topAnchor),
-            movieTableView.leadingAnchor.constraint(equalTo: mainView.leadingAnchor),
-            movieTableView.trailingAnchor.constraint(equalTo: mainView.trailingAnchor),
-            movieTableView.bottomAnchor.constraint(equalTo: mainView.bottomAnchor),
-            
             headerImage.heightAnchor.constraint(equalToConstant: 250),
             headerImage.topAnchor.constraint(equalTo: header.topAnchor),
             headerImage.leadingAnchor.constraint(equalTo: header.leadingAnchor),
             headerImage.trailingAnchor.constraint(equalTo: header.trailingAnchor),
             
-            headerLabel.topAnchor.constraint(equalTo: headerImage.bottomAnchor),
+            headerLabel.topAnchor.constraint(equalTo: headerImage.bottomAnchor, constant: -30),
             headerLabel.leadingAnchor.constraint(equalTo: header.leadingAnchor),
             headerLabel.trailingAnchor.constraint(equalTo: header.trailingAnchor),
             
-            starStackView.topAnchor.constraint(equalTo: headerLabel.bottomAnchor, constant: 5),
+            starStackView.topAnchor.constraint(equalTo: headerImage.bottomAnchor, constant: 10),
             starStackView.heightAnchor.constraint(equalToConstant: 15),
             starStackView.leadingAnchor.constraint(equalTo: header.leadingAnchor),
             
-            voteCountLabel.topAnchor.constraint(equalTo: headerLabel.bottomAnchor),
-            voteCountLabel.heightAnchor.constraint(equalToConstant: 15),
+            voteCountLabel.centerYAnchor.constraint(equalTo: starStackView.centerYAnchor),
             voteCountLabel.leadingAnchor.constraint(equalTo: starStackView.trailingAnchor, constant: 10),
                 
             genreCollectionView.heightAnchor.constraint(equalToConstant: 30),
-            genreCollectionView.topAnchor.constraint(equalTo: voteCountLabel.bottomAnchor, constant: 15),
+            genreCollectionView.topAnchor.constraint(equalTo: voteCountLabel.bottomAnchor, constant: 5),
             genreCollectionView.leadingAnchor.constraint(equalTo: header.leadingAnchor),
             genreCollectionView.trailingAnchor.constraint(equalTo: header.trailingAnchor)
         ])
-    }
-    
-    func setupStarStack(fullStar: Int, halfStar: Int) {
-        DispatchQueue.main.async {
-            if (fullStar + halfStar) == 0 {
-                for _ in 1...5 {
-                    let emptyStarView = self.setupStarImage(imgName: "starEmpty")
-                    self.starStackView.addArrangedSubview(emptyStarView)
-                }
-            } else {
-                for _ in 1...fullStar {
-                    let filledStarView = self.setupStarImage(imgName: "starFilled")
-                    self.starStackView.addArrangedSubview(filledStarView)
-                }
-                
-                if halfStar != 0 {
-                    let halfStarView = self.setupStarImage(imgName: "starHalf")
-                    self.starStackView.addArrangedSubview(halfStarView)
-                }
-                var emptyStars: Int = 5 - (fullStar + halfStar)
-                if halfStar>1 {
-                    emptyStars = emptyStars + halfStar - 1
-                }
-                if emptyStars > 0 {
-                    for _ in 1...emptyStars {
-                        let emptyStarView = self.setupStarImage(imgName: "starEmpty")
-                        self.starStackView.addArrangedSubview(emptyStarView)
-                    }
-                }
-            }
-            
-        }
+        genreCollectionView.delegate = self
+        genreCollectionView.dataSource = self
 
     }
+        
+    func setupStars(voteAvg: Double) {
+        let index = Int((voteAvg/2.0).rounded())
+        setStarIndex(start: 1, end: index, img: "starFilled")
+        setStarIndex(start: index + 1, end: 5, img: "starEmpty")
+    }
     
-    func setupStarImage(imgName: String) -> UIImageView {
-        let imgView = UIImageView(image: UIImage(named: imgName))
-        imgView.translatesAutoresizingMaskIntoConstraints = false
-        imgView.contentMode = .scaleToFill
-        imgView.widthAnchor.constraint(equalToConstant: 15).isActive = true
-        return imgView
+    func setStarIndex(start: Int, end: Int, img: String) {
+        for _ in start...end {
+            let imageView = UIImageView()
+            imageView.image = UIImage(named: img)!
+            starStackView.addArrangedSubview(imageView)
+            NSLayoutConstraint.activate([
+                imageView.widthAnchor.constraint(equalToConstant: 15)
+            ])
+        }
+    }
+    
+    func setupHeaderData(lable: String, voteCount: String, image: String, voteAvg: Double) {
+        DispatchQueue.main.async {
+            self.headerLabel.text = lable
+            self.voteCountLabel.text = voteCount
+            self.headerImage.setImage(with: image)
+            self.setupStars(voteAvg: voteAvg)
+        }
+    }
+    
+    func getMovieDataSuccess() {
+        reloadTableView()
+    }
+    
+    func getMovieDataFailure(error: Error) {
+        print(error)
     }
     
     func reloadTableView() {
@@ -207,32 +195,16 @@ class HomeViewController: UIViewController, HomeViewInterface {
             self.movieTableView.reloadData()
         }
     }
-            
-    func popularMovieFailure(error: Error) {
-        print("Error in fetching popular movies \(error)")
-    }
     
-    func topRatedMovieFailure(error: Error) {
-        print("Error in fetching top rated movies \(error)")
-    }
-
-    func upComingMovieFailure(error: Error) {
-        print("Error in fetching upcoming movies \(error)")
-    }
-    
-    func nowPlayingMovieFailure(error: Error) {
-        print("Error in fetching movies in theaters \(error)")
-    }
-
 }
 
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        presenter?.heightForSectionAt(tableView: tableView, section: section) ?? 0.0
+        return 40
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        presenter?.heightForRowAt(tableView: tableView, indexPath: indexPath) ?? 0.0
+        return 200
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -240,7 +212,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return presenter?.numberOfRows(section: section) ?? 0
+        return 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -248,7 +220,11 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return presenter?.setupHeaderView(section: section)
+        let headerView = SectionHeaderView()
+        headerView.delegate = self
+        headerView.titleLabel.text = presenter?.headerTitle[section]
+        headerView.showAllBtn.tag = section
+        return headerView
     }
 }
 
@@ -259,5 +235,11 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         return presenter?.genreCollectionCellForItemAt(collectionView: collectionView, indexPath: indexPath) ?? UICollectionViewCell()
+    }
+}
+
+extension HomeViewController: SectionHeaderToView {
+    func showAllBtnTapped(index: Int) {
+        presenter?.showAllBtnTapped(index: index)
     }
 }

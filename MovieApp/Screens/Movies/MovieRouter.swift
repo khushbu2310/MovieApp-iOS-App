@@ -40,17 +40,16 @@ class MovieRouter: MovieRouterInterface {
     func navigateToMovieDetails(movieId: Int?) {
         let movieDetailsVC = MovieDetailsRouter.createModule(movieId: movieId)
         view?.pushViewController(movieDetailsVC, animated: true)
-        view?.navigationBar.prefersLargeTitles = false
-        movieDetailsVC.navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "arrow.left"), style: .done, target: self, action: #selector(backButtontapped(_:)))
+        view?.navigationBar.prefersLargeTitles = true
+        movieDetailsVC.navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "arrow.left"), style: .done, target: self, action: #selector(backButtonTapped(_:)))
         movieDetailsVC.title = "Movie Details"
         movieDetailsVC.navigationController?.navigationBar.tintColor = .white
     }
     
-    @objc private func backButtontapped(_ sender: UIViewController) {
+    @objc private func backButtonTapped(_ sender: UIViewController) {
         DispatchQueue.main.async { [weak self] in
             self?.view?.navigationBar.prefersLargeTitles = true
             self?.view?.popViewController(animated: true)
         }
-        
     }
 }

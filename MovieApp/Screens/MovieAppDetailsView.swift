@@ -20,7 +20,6 @@ class MovieAppDetailsView: UIView {
     
     private let movieTitle: UILabel = {
         let title = UILabel()
-        title.text = "Movie Name"
         title.font = .interMedium(size: 40)
         title.numberOfLines = 0
         return title
@@ -28,9 +27,8 @@ class MovieAppDetailsView: UIView {
     
     private let movieGenre: UILabel = {
         let genre = UILabel()
-        genre.text = "Action/Crime/Science Fiction"
         genre.translatesAutoresizingMaskIntoConstraints = false
-        genre.font = .interLight(size: 15)
+        genre.font = .interMedium(size: 15)
         genre.numberOfLines = 0
         return genre
     }()
@@ -49,8 +47,7 @@ class MovieAppDetailsView: UIView {
     
     private let voteLabel: UILabel = {
         let vote = UILabel()
-        vote.text = "1301 votes"
-        vote.font = .interLight(size: 15)
+        vote.font = .interMedium(size: 15)
         vote.translatesAutoresizingMaskIntoConstraints = false
         return vote
     }()
@@ -74,33 +71,30 @@ class MovieAppDetailsView: UIView {
     
     private let dateLabel: UILabel = {
         let date = UILabel()
-        date.text = "8/14/20"
         date.translatesAutoresizingMaskIntoConstraints = false
-        date.font = .interLight(size: 15)
+        date.font = .interMedium(size: 15)
         return date
     }()
     
     private let runTimeLabel: UILabel = {
         let time = UILabel()
-        time.text = "01:53/113 min"
         time.translatesAutoresizingMaskIntoConstraints = false
-        time.font = .interLight(size: 15)
+        time.font = .interMedium(size: 15)
         return time
     }()
     
     private let languageLabel: UILabel = {
         let lan = UILabel()
-        lan.text = "English"
         lan.translatesAutoresizingMaskIntoConstraints = false
-        lan.font = .interLight(size: 15)
+        lan.font = .interMedium(size: 15)
         return lan
     }()
-    
+        
     private lazy var movieDateTimeLanStack: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [dateLabel, runTimeLabel, languageLabel])
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
-        stack.spacing = 5
+        stack.spacing = 3
         stack.alignment = .leading
         return stack
     }()
@@ -117,7 +111,6 @@ class MovieAppDetailsView: UIView {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "This is movie details description"
         label.font = .interLight(size: 15)
         label.numberOfLines = 0
         return label
@@ -148,7 +141,7 @@ class MovieAppDetailsView: UIView {
             mainStack.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
             mainStack.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
             movieImage.heightAnchor.constraint(equalToConstant: 250),
-            movieDateTimeLanStack.widthAnchor.constraint(equalToConstant: 100),
+            movieDateTimeLanStack.widthAnchor.constraint(equalToConstant: 130),
             subStack.widthAnchor.constraint(equalTo: mainStack.widthAnchor),
             descriptionLabel.topAnchor.constraint(equalTo: movieTitleGenreStarStack.bottomAnchor, constant: 10)
         ])
@@ -156,14 +149,23 @@ class MovieAppDetailsView: UIView {
 }
 
 extension MovieAppDetailsView: MovieDetailsToViewInterface {
-    func configureMovieDetails(movieDetails: MovieTVDetailsModel) {
-        movieImage.setImage(with: movieDetails.image)
-        movieTitle.text = movieDetails.title
-        movieGenre.text = movieDetails.genre
-        voteLabel.text = movieDetails.voteCount
-        dateLabel.text = movieDetails.date
-        runTimeLabel.text = movieDetails.runtime
-        languageLabel.text = movieDetails.language
-        descriptionLabel.text = movieDetails.description
+    func configureDetails(details: MovieTVDetailsModel) {
+        movieImage.setImage(with: details.image)
+        movieTitle.text = details.title
+        movieGenre.text = details.genre
+        voteLabel.text = details.voteCount
+        dateLabel.text = details.date
+        runTimeLabel.text = details.runtime
+        languageLabel.text = details.language
+        
+        dateLabel.attachIconToLabel(image: UIImage(named: "calender")!, text: details.date)
+        if details.runtime != nil {
+            runTimeLabel.attachIconToLabel(image: UIImage(named: "clock")!, text: details.runtime ?? "No time")
+            languageLabel.attachIconToLabel(image: UIImage(named: "earth")!, text: details.language ?? "english")
+        } else {
+            runTimeLabel.attachIconToLabel(image: UIImage(named: "tv")!, text: details.episodes ?? "0")
+            languageLabel.attachIconToLabel(image: UIImage(named: "ytIcon")!, text: details.seasons ?? "0")
+        }
+        descriptionLabel.text = details.description
     }
 }

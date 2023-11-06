@@ -9,7 +9,7 @@ import Foundation
 
 struct MovieByIDEntity: Codable {
     let adult: Bool
-    let backdropPath: String
+    let backdropPath: String?
     let belongsToCollection: BelongsToStruct?
     let budget: Int
     let genres: [Genres]
@@ -49,13 +49,14 @@ struct MovieByIDEntity: Codable {
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
     }
+    
 }
 
 struct BelongsToStruct: Codable {
     let id: Int
     let name: String
-    let posterPath: String
-    let backdropPath: String
+    let posterPath: String?
+    let backdropPath: String?
     
     enum CodingKeys: String, CodingKey {
         case id, name

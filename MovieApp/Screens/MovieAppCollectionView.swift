@@ -8,46 +8,36 @@
 import Foundation
 import UIKit
 
-struct CellDataObject {
-    let title: String
-    let posterPath: String
-}
-
 class MovieAppCollectionView: UIView {
     
     var collectionView: UICollectionView!
-    var layout: UICollectionViewFlowLayout!
-    var cellData: [CellDataObject] = []
     weak var delegate: CellActionDelegate?
+    var dataList: [Codable] = []
+    var identifier: String
     
-    init(scrollDirection: UICollectionView.ScrollDirection) {
+    init(scrollDirection: UICollectionView.ScrollDirection, itemSize: CGSize, cell: UICollectionViewCell.Type, identifier: String) {
+        self.identifier = identifier
         super.init(frame: .zero)
-        setupLayout(scrollDirection: scrollDirection)
-        setupCollectionView()
-        setupConstraints()
+        setupLayout(scrollDirection: scrollDirection, itemSize: itemSize, cell: cell, identifier: identifier)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupLayout(scrollDirection: UICollectionView.ScrollDirection) {
-        layout = UICollectionViewFlowLayout()
+    func setupLayout(scrollDirection: UICollectionView.ScrollDirection, itemSize: CGSize, cell: UICollectionViewCell.Type, identifier: String) {
+        let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = scrollDirection
-        layout.itemSize = CGSize(width: 120, height: 200)
+        layout.itemSize = itemSize
         layout.minimumLineSpacing = 10
-        layout.minimumInteritemSpacing = 5
-        layout.sectionInset = UIEdgeInsets(top: 0, left: 2, bottom: 0, right: 2)
-    }
-    
-    func setupCollectionView() {
+        
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.register(MovieAppCollectionViewCell.self, forCellWithReuseIdentifier: MovieAppCollectionViewCell.identifier)
+        collectionView.register(cell, forCellWithReuseIdentifier: identifier)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.showsHorizontalScrollIndicator = false
         self.addSubview(collectionView)
+        setupConstraints()
     }
     
     func setupConstraints() {
@@ -58,26 +48,32 @@ class MovieAppCollectionView: UIView {
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
     }
-    
-    func configCellDetails(cellData: [CellDataObject]) {
-        self.cellData = cellData
-        DispatchQueue.main.async {
-            self.collectionView.reloadData()
-        }
+        
+    func configContent(dataList: [Codable]) {
+        self.dataList = dataList
     }
 }
 
 extension MovieAppCollectionView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieAppCollectionViewCell.identifier, for: indexPath) as? MovieAppCollectionViewCell else { return UICollectionViewCell() }
-        cell.configureCellDetails(cellData[indexPath.row])
-        return cell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
+        switch cell {
+        case is MovieAppCollectionViewCell:
+            guard let cell = cell as? MovieAppCollectionViewCell else { return UICollectionViewCell() }
+            cell.configureCellDetails(dataList[indexPath.row])
+            return cell
+        case is YoutubeCollectionViewCell:
+            guard let cell = cell as? YoutubeCollectionViewCell else { return UICollectionViewCell() }
+            cell.configureCellDetails(dataList[indexPath.row])
+            return cell
+        default:
+            return UICollectionViewCell()
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if cellData.isEmpty { return 0 }
-        return cellData.count
+        return dataList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

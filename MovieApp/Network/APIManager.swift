@@ -18,10 +18,6 @@ protocol APIRouter {
     var body: Codable? { get }
 }
 
-enum APIRequestError: Error {
-    case badUrl, noData, invalidResponse, encodeError(Error), invalidData, decodeError(Error), serverError
-}
-
 typealias Handler<T> = (Result<T, APIRequestError>) -> Void
 
 final class APIManager {

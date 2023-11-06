@@ -16,7 +16,6 @@ protocol TVShowsViewInterface {
 
 class TVShowsViewController: UIViewController, TVShowsViewInterface {
     var presenter: TVShowsPresenterInterface?
-    var popularMovieListData: TVShowResult?
     
     let tvShowView: UIView = {
         let view = UIView()
@@ -25,7 +24,7 @@ class TVShowsViewController: UIViewController, TVShowsViewInterface {
     }()
     
     let tvShowCollectionView = {
-        let tvShowView = MovieAppCollectionView(scrollDirection: .vertical)
+        let tvShowView = MovieAppCollectionView(scrollDirection: .vertical, itemSize: CGSize(width: UIScreen.main.bounds.width/3 - 20, height: 200), cell: MovieAppCollectionViewCell.self, identifier: MovieAppCollectionViewCell.identifier)
         tvShowView.translatesAutoresizingMaskIntoConstraints = false
         tvShowView.collectionView.showsVerticalScrollIndicator = false
         return tvShowView
@@ -33,10 +32,11 @@ class TVShowsViewController: UIViewController, TVShowsViewInterface {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
         setupTitle()
+        setupUI()
         setupConstraints()
         presenter?.getPopularTVShowList()
+        tvShowCollectionView.delegate = self
     }
 
     func setupTitle() {
@@ -66,12 +66,18 @@ class TVShowsViewController: UIViewController, TVShowsViewInterface {
     
     func popularTVShowSuccess(cellData: [CellDataObject]) {
         DispatchQueue.main.async {
-            self.tvShowCollectionView.configCellDetails(cellData: cellData)
+            self.tvShowCollectionView.configContent(dataList: cellData)
             self.tvShowCollectionView.collectionView.reloadData()
         }
     }
     
     func popularTVShowFailure(error: Error) {
         print(error)
+    }
+}
+
+extension TVShowsViewController: CellActionDelegate {
+    func cellClicked(indexPath: IndexPath) {
+        presenter?.navigateToTVShowDetails(indexPath: indexPath)
     }
 }

@@ -14,7 +14,7 @@ struct PersonImagesByIdEntity: Codable {
 
 struct Profiles: Codable {
     let aspectRatio: Double
-    let height: Int
+    let height: Int?
     let filePath: String
     let voteAverage: Double
     let voteCount: Int

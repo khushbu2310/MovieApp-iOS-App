@@ -15,10 +15,13 @@ protocol MovieDetailsViewInterface {
     
     func getCastsSuccess(castsData: [CellDataObject])
     func getCastsFailure(error: Error)
+    
+    func getVideosSuccess(castData: [String])
+    func getVideosFailure(error: Error)
 }
 
 protocol MovieDetailsToViewInterface: AnyObject {
-    func configureMovieDetails(movieDetails: MovieTVDetailsModel)
+    func configureDetails(details: MovieTVDetailsModel)
 }
 
 class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
@@ -62,14 +65,15 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
     }()
     
     private var videoCollectionView: MovieAppCollectionView = {
-        let videos = MovieAppCollectionView(scrollDirection: .horizontal)
+        let videos = MovieAppCollectionView(scrollDirection: .horizontal, itemSize: CGSize(width: 150, height: 100), cell: YoutubeCollectionViewCell.self, identifier: YoutubeCollectionViewCell.identifier)
         videos.translatesAutoresizingMaskIntoConstraints = false
         videos.collectionView.showsHorizontalScrollIndicator = false
         return videos
     }()
     
     private var castCollectionView: MovieAppCollectionView = {
-        let casts = MovieAppCollectionView(scrollDirection: .horizontal)
+        let casts = MovieAppCollectionView(scrollDirection: .horizontal, itemSize: CGSize(width: 120, height: 200), cell: MovieAppCollectionViewCell.self, identifier: MovieAppCollectionViewCell.identifier)
+
         casts.translatesAutoresizingMaskIntoConstraints = false
         casts.collectionView.showsHorizontalScrollIndicator = false
         return casts
@@ -79,6 +83,7 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
         super.viewDidLoad()
         presenter?.getDetails()
         delegate = headerDetails as? MovieDetailsToViewInterface
+        castCollectionView.delegate = self
         setupUI()
         setupConstraints()
     }
@@ -116,7 +121,6 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1.25),
             contentView.widthAnchor.constraint(equalTo: view.widthAnchor)
         ])
     }
@@ -130,25 +134,26 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
     
     func setupVideoConstraints() {
         NSLayoutConstraint.activate([
-            videoLabel.topAnchor.constraint(equalTo: headerDetails.bottomAnchor, constant: 10),
+            videoLabel.topAnchor.constraint(equalTo: headerDetails.bottomAnchor, constant: 15),
             videoLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             videoLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            videoCollectionView.topAnchor.constraint(equalTo: videoLabel.bottomAnchor, constant: 5),
+            videoCollectionView.topAnchor.constraint(equalTo: videoLabel.bottomAnchor, constant: 15),
             videoCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             videoCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            videoCollectionView.heightAnchor.constraint(equalToConstant: 200)
+            videoCollectionView.heightAnchor.constraint(equalToConstant: 100)
         ])
     }
     
     func setupCastConstraints() {
         NSLayoutConstraint.activate([
-            castLabel.topAnchor.constraint(equalTo: videoCollectionView.bottomAnchor, constant: 10),
+            castLabel.topAnchor.constraint(equalTo: videoCollectionView.bottomAnchor, constant: 15),
             castLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             castLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            castCollectionView.topAnchor.constraint(equalTo: castLabel.bottomAnchor, constant: 5),
+            castCollectionView.topAnchor.constraint(equalTo: castLabel.bottomAnchor, constant: 15),
             castCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             castCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            castCollectionView.heightAnchor.constraint(equalToConstant: 200)
+            castCollectionView.heightAnchor.constraint(equalToConstant: 200),
+            contentView.bottomAnchor.constraint(greaterThanOrEqualTo: castCollectionView.bottomAnchor, constant: 110)
         ])
 
     }
@@ -156,7 +161,7 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
     func getMovieDetailsSuccess(movieDetails: MovieTVDetailsModel) {
         DispatchQueue.main.async {
             self.title = movieDetails.title
-            self.delegate?.configureMovieDetails(movieDetails: movieDetails)
+            self.delegate?.configureDetails(details: movieDetails)
         }
     }
     
@@ -166,7 +171,7 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
     
     func getCastsSuccess(castsData: [CellDataObject]) {
         DispatchQueue.main.async {
-            self.castCollectionView.configCellDetails(cellData: castsData)
+            self.castCollectionView.configContent(dataList: castsData)
             self.castCollectionView.collectionView.reloadData()
         }
     }
@@ -174,5 +179,22 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
     func getCastsFailure(error: Error) {
         print(error)
     }
+    
+    func getVideosSuccess(castData: [String]) {
+        DispatchQueue.main.async {
+            self.videoCollectionView.configContent(dataList: castData)
+            self.videoCollectionView.collectionView.reloadData()
+        }
 
+    }
+
+    func getVideosFailure(error: Error) {
+        print(error)
+    }
+}
+
+extension MovieDetailsViewController: CellActionDelegate {
+    func cellClicked(indexPath: IndexPath) {
+        presenter?.navigateToCastDetails(indexPath: indexPath)
+    }
 }

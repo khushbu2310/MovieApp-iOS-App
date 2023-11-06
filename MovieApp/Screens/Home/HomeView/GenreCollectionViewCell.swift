@@ -22,7 +22,6 @@ class GenreCollectionViewCell: UICollectionViewCell {
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setTitle("Button", for: .normal)
         btn.titleLabel?.font = .interLight(size: 15)
-        btn.backgroundColor = .red
         return btn
     }()
     
@@ -47,12 +46,15 @@ class GenreCollectionViewCell: UICollectionViewCell {
             genreButton.topAnchor.constraint(equalTo: self.topAnchor),
             genreButton.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             genreButton.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            genreButton.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+//            genreButton.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
     }
     
     @objc func genreButtonTapped() {
         genreDelegate?.didTapGenreBtn(genreButton.tag)
+        if genreButton.isHighlighted {
+            genreButton.backgroundColor = .red
+        }
     }
     
     func configGenreType(data: Genres?) {

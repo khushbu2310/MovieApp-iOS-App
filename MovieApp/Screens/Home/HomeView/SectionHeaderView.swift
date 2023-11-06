@@ -8,8 +8,12 @@
 import Foundation
 import UIKit
 
+protocol SectionHeaderToView: AnyObject {
+    func showAllBtnTapped(index: Int)
+}
+
 class SectionHeaderView: UIView {
-    
+    weak var delegate: SectionHeaderToView?
     let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -43,20 +47,14 @@ class SectionHeaderView: UIView {
     
     func setupConstraints() {
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: self.topAnchor),
+            titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 4),
             titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             showAllBtn.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
     }
     
     @objc private func showAllBtnTapped() {
-        print("\(showAllBtn.tag) button tapped")
-        
+        delegate?.showAllBtnTapped(index: showAllBtn.tag)
     }
     
-    func configHeaderContent(sectionTitle: String, section: Int) {
-        titleLabel.text = sectionTitle
-        showAllBtn.tag = section
-    }
-
 }

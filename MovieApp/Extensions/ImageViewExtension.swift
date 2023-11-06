@@ -1,5 +1,5 @@
 //
-//  ImageExtension.swift
+//  ImageViewExtension.swift
 //  MovieApp
 //
 //  Created by Khushbuben Patel on 29/10/23.
@@ -17,3 +17,4 @@ extension UIImageView {
         kf.setImage(with: resource)
     }
 }
+

@@ -17,8 +17,7 @@ protocol TVShowsPresenterInterface {
     func getPopularTVShowList()
     func getPopularTVShowSuccess(tvShow: TVShowResult)
     func getPopularTVShowFailure(error: Error)
-    func setCollectionCell(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
-    func setCollectionViewCellCount(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
+    func navigateToTVShowDetails(indexPath: IndexPath)
 }
 
 class TVShowsPresenter: TVShowsPresenterInterface {
@@ -34,24 +33,17 @@ class TVShowsPresenter: TVShowsPresenterInterface {
 
     func getPopularTVShowSuccess(tvShow: TVShowResult) {
         self.popularTVShowList = tvShow
-        view?.popularTVShowSuccess(cellData: tvShow.ToCellObj())
+        let tvShowData = tvShow.results.compactMap({ CellDataObject(title: $0.name, posterPath: $0.posterPath)})
+        view?.popularTVShowSuccess(cellData: tvShowData)
     }
     
     func getPopularTVShowFailure(error: Error) {
         view?.popularTVShowFailure(error: error)
     }
-    
-    func setCollectionCell(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieAppCollectionViewCell.identifier, for: indexPath) as? MovieAppCollectionViewCell else { return UICollectionViewCell() }
-        let title = popularTVShowList?.results[indexPath.row].originalName ?? "TV Show Name"
-        let posterPath = popularTVShowList?.results[indexPath.row].posterPath ?? ""
-        let cellData = popularTVShowList?.ToCellObj()
-//        cell.configureCellDetails(popularTVShowList?.ToCellObj())
-        return cell
-    }
-    
-    func setCollectionViewCellCount(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        popularTVShowList?.results.count ?? 1
+        
+    func navigateToTVShowDetails(indexPath: IndexPath) {
+        let tvShowId = popularTVShowList?.results[indexPath.row].id
+        router?.navigateToTVShowDetails(tvShowId: tvShowId)
     }
 
 }

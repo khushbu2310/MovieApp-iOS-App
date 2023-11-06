@@ -18,16 +18,10 @@ struct TVShowResult: Codable {
         case totalPages = "total_pages"
         case totalResults = "total_results"
     }
-    
-    func ToCellObj() -> [CellDataObject] {
-        return self.results.map({ obj in
-            return CellDataObject(title: obj.originalName, posterPath: obj.posterPath)
-        }) 
-    }
 }
 
 struct TVResultDetails: Codable {
-    let backdropPath: String
+    let backdropPath: String?
     let firstAirDate: String
     let genreIds: [Int]
     let id: Int

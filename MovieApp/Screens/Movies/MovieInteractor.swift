@@ -9,7 +9,7 @@ import Foundation
 
 protocol MovieInteractorInterface {
     var presenter: MoviePresenterInterface? { get set }
-    func getPopularMovieData()
+    func getMovieData()
 }
 
 class MovieInteractor: MovieInteractorInterface {
@@ -20,7 +20,7 @@ class MovieInteractor: MovieInteractorInterface {
         self.movieRepo = moviRepo
     }
     
-    func getPopularMovieData() {
+    func getMovieData() {
         movieRepo.getMovieData(modelType: MovieResult.self, type: EndPointMovie.popularMovie) { [self] response in
             switch response {
             case .success(let movie):

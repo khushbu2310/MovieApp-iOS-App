@@ -9,7 +9,7 @@ import Foundation
 
 struct MovieResult: Codable {
     let page: Int
-    let results: [ResultDetails]
+    var results: [ResultDetails]
     let totalPages: Int
     let totalResults: Int
     let dates: DateStruct?
@@ -19,17 +19,11 @@ struct MovieResult: Codable {
         case totalPages = "total_pages"
         case totalResults = "total_results"
     }
-    
-    func ToCellObj() -> [CellDataObject] {
-        return self.results.map({ obj in
-            return CellDataObject(title: obj.originalTitle, posterPath: obj.posterPath)
-        })
-    }
 }
 
 struct ResultDetails: Codable {
     let adult: Bool
-    let backdropPath: String
+    let backdropPath: String?
     let genreIds: [Int]
     let id: Int
     let originalLanguage: String
@@ -59,4 +53,9 @@ struct ResultDetails: Codable {
 struct DateStruct: Codable {
     let maximum: String
     let minimum: String
+}
+
+struct ResponseModel {
+    let responseEnum: MovieTypesEnum
+    let data: MovieResult
 }

@@ -11,6 +11,7 @@ enum EndPointTVShow {
     case popularTVShows
     case topRatedTVShows
     case tvShowDetails(id: Int)
+    case tvShowVideDetails(id: Int)
 }
 
 extension EndPointTVShow: EndPointAPIType {
@@ -26,6 +27,8 @@ extension EndPointTVShow: EndPointAPIType {
             return "tv/top_rated"
         case .tvShowDetails(let id):
             return "tv/\(id)"
+        case .tvShowVideDetails(let id):
+            return "tv/\(id)/videos"
         }
     }
     
@@ -39,7 +42,7 @@ extension EndPointTVShow: EndPointAPIType {
     
     var queryItems: [URLQueryItem]? {
         switch self {
-        case .tvShowDetails:
+        case .tvShowDetails, .tvShowVideDetails:
             return [
                 URLQueryItem(name: "api_key", value: Constants.APIKey),
                 URLQueryItem(name: "language", value: "en-US"),

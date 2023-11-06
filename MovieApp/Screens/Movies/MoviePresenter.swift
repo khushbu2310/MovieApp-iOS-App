@@ -13,12 +13,11 @@ protocol MoviePresenterInterface {
     var router: MovieRouterInterface? { get set }
     var interactor: MovieInteractorInterface? { get set }
     
-    var popularMovieList: MovieResult? { get set }
-    func getPopularMovieList()
+    var movieList: MovieResult? { get set }
+    func getMovieList()
     func getPopularMovieSuccess(movie: MovieResult)
     func getPopularMovieFailure(error: Error)
-    func setCollectionCell(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
-    func setCollectionViewCellCount(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
+    func configureMovies(data: MovieResult?, type: String)
     
     func navigateToMovieDetails(indexPath: IndexPath)
 }
@@ -32,35 +31,31 @@ class MoviePresenter: MoviePresenterInterface {
     var view: MovieViewInterface?
     var router: MovieRouterInterface?
     var interactor: MovieInteractorInterface?
-    var popularMovieList: MovieResult?
+    var movieList: MovieResult?
     
-    func getPopularMovieList() {
-        interactor?.getPopularMovieData()
+    func getMovieList() {
+        interactor?.getMovieData()
     }
     
     func getPopularMovieSuccess(movie: MovieResult) {
-        self.popularMovieList = movie
-        view?.popularMovieSuccess(cellData: movie.ToCellObj())
+        self.movieList = movie
+        let movieCellData = movie.results.compactMap({ CellDataObject(title: $0.originalTitle, posterPath: $0.posterPath)})
+        view?.popularMovieSuccess(cellData: movieCellData)
     }
     
     func getPopularMovieFailure(error: Error) {
         view?.popularMovieFailure(error: error)
     }
-    
-    func setCollectionCell(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieAppCollectionViewCell.identifier, for: indexPath) as? MovieAppCollectionViewCell else { return UICollectionViewCell() }
-        let title = popularMovieList?.results[indexPath.row].originalTitle ?? "Movie Name"
-        let posterPath = popularMovieList?.results[indexPath.row].posterPath ?? ""
-        //        cell.configureCellDetails(popularMovieList?.results[indexPath.row])
-        return cell
-    }
-    
-    func setCollectionViewCellCount(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        popularMovieList?.results.count ?? 10
-    }
-    
+        
     func navigateToMovieDetails(indexPath: IndexPath) {
-        let movieId = popularMovieList?.results[indexPath.row].id
+        let movieId = movieList?.results[indexPath.row].id
         router?.navigateToMovieDetails(movieId: movieId)
     }
+    
+    func configureMovies(data: MovieResult?, type: String) {
+        self.movieList = data
+        guard let movieCellData = data?.results.compactMap({ CellDataObject(title: $0.originalTitle, posterPath: $0.posterPath) }) else { return }
+        view?.popularMovieSuccess(cellData: movieCellData)
+    }
+    
 }

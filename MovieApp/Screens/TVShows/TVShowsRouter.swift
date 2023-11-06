@@ -8,19 +8,18 @@
 import Foundation
 import UIKit
 
-typealias EntryPointTvShow = TVShowsViewInterface & UIViewController
-
 protocol TVShowsRouterInterface {
-    var entry: EntryPointTvShow? { get set }
+    var view: UINavigationController? { get set }
     var presenter: TVShowsPresenterInterface? { get set }
-    static func createModule() -> UIViewController
+    static func createModule() -> UINavigationController
+    func navigateToTVShowDetails(tvShowId: Int?)
 }
 
 class TVShowsRouter: TVShowsRouterInterface {
-    var entry: EntryPointTvShow?
+    var view: UINavigationController?
     var presenter: TVShowsPresenterInterface?
 
-    static func createModule() -> UIViewController {
+    static func createModule() -> UINavigationController {
         let router = TVShowsRouter()
         var view = TVShowsViewController()
         var presenter: TVShowsPresenterInterface = TVShowsPresenter()
@@ -32,8 +31,24 @@ class TVShowsRouter: TVShowsRouterInterface {
         presenter.view = view
         interactor.presenter = presenter
         router.presenter = presenter
-        router.entry = view
-        return view
+        let navigationController = UINavigationController(rootViewController: view)
+        router.view = navigationController
+        return navigationController
     }
     
+    func navigateToTVShowDetails(tvShowId: Int?) {
+        let tvShowDetailsVC = TVShowDetailsRouter.createModule(tvShowId: tvShowId)
+        view?.pushViewController(tvShowDetailsVC, animated: true)
+        view?.navigationBar.prefersLargeTitles = true
+        tvShowDetailsVC.navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "arrow.left"), style: .done, target: self, action: #selector(backButtonTapped(_:)))
+        tvShowDetailsVC.title = "TVShow Details"
+        tvShowDetailsVC.navigationController?.navigationBar.tintColor = .white
+    }
+    
+    @objc private func backButtonTapped(_ sender: UIViewController) {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.navigationBar.prefersLargeTitles = true
+            self?.view?.popViewController(animated: true)
+        }
+    }
 }

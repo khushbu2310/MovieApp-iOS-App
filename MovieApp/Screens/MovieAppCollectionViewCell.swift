@@ -54,7 +54,8 @@ class MovieAppCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    func configureCellDetails(_ data: CellDataObject) {
+    func configureCellDetails(_ data: Codable) {
+        guard let data = data as? CellDataObject else { return }
         let imagePath = Constants.imgBaseUrl + data.posterPath
         movieImage.setImage(with: imagePath)
         movieLabel.text = data.title

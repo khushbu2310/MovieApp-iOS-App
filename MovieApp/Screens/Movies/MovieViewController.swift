@@ -25,7 +25,7 @@ class MovieViewController: UIViewController, MovieViewInterface {
     }()
     
     let movieCollectionView = {
-        let movieView = MovieAppCollectionView(scrollDirection: .vertical)
+        let movieView = MovieAppCollectionView(scrollDirection: .vertical, itemSize: CGSize(width: UIScreen.main.bounds.width/3 - 20, height: 200), cell: MovieAppCollectionViewCell.self, identifier: MovieAppCollectionViewCell.identifier)
         movieView.translatesAutoresizingMaskIntoConstraints = false
         movieView.collectionView.showsVerticalScrollIndicator = false
         return movieView
@@ -36,7 +36,7 @@ class MovieViewController: UIViewController, MovieViewInterface {
         setupUI()
         setupTitle()
         setupConstraints()
-        presenter?.getPopularMovieList()
+        presenter?.getMovieList()
         movieCollectionView.delegate = self
     }
     
@@ -67,7 +67,7 @@ class MovieViewController: UIViewController, MovieViewInterface {
     
     func popularMovieSuccess(cellData: [CellDataObject]) {
         DispatchQueue.main.async {
-            self.movieCollectionView.configCellDetails(cellData: cellData)
+            self.movieCollectionView.configContent(dataList: cellData)
             self.movieCollectionView.collectionView.reloadData()
         }
     }
