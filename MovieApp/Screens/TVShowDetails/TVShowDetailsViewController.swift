@@ -9,19 +9,15 @@ import Foundation
 import UIKit
 
 protocol TVShowDetailsViewInterface {
-    var presenter: TVShowDetailsPresenterInterface? { get set }
+    var presenter: TVShowDetailsViewToPresenterInterface? { get set }
     func getTVShowDetailsSuccess(tvShowDetails: MovieTVDetailsModel)
-    func getTVShowDetailsFailure(error: Error)
-    
     func getCastsSuccess(castsData: [CellDataObject])
-    func getCastsFailure(error: Error)
-    
     func getVideosSuccess(castData: [String])
-    func getVideosFailure(error: Error)
+    func getTVShowDataFailure(error: Error)
 }
 
 class TVShowDetailsViewController: UIViewController, TVShowDetailsViewInterface {
-    var presenter: TVShowDetailsPresenterInterface?
+    var presenter: TVShowDetailsViewToPresenterInterface?
     var delegate: MovieDetailsToViewInterface?
     
     private let scrollView: UIScrollView = {
@@ -75,7 +71,7 @@ class TVShowDetailsViewController: UIViewController, TVShowDetailsViewInterface 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter?.getDetails()
+        presenter?.getTVShowDetails()
         delegate = headerDetails as? MovieDetailsToViewInterface
         castCollectionView.delegate = self
         setupUI()
@@ -157,34 +153,24 @@ class TVShowDetailsViewController: UIViewController, TVShowDetailsViewInterface 
             self.delegate?.configureDetails(details: tvShowDetails)
         }
     }
-    
-    func getTVShowDetailsFailure(error: Error) {
-        print(error)
-    }
-    
+        
     func getCastsSuccess(castsData: [CellDataObject]) {
         DispatchQueue.main.async {
             self.castCollectionView.configContent(dataList: castsData)
             self.castCollectionView.collectionView.reloadData()
         }
     }
-    
-    func getCastsFailure(error: Error) {
-        print(error)
-    }
-    
+        
     func getVideosSuccess(castData: [String]) {
         DispatchQueue.main.async {
             self.videoCollectionView.configContent(dataList: castData)
             self.videoCollectionView.collectionView.reloadData()
         }
-
     }
 
-    func getVideosFailure(error: Error) {
+    func getTVShowDataFailure(error: Error) {
         print(error)
     }
-
 }
 
 extension TVShowDetailsViewController: CellActionDelegate {

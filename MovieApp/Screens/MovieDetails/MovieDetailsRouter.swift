@@ -10,7 +10,7 @@ import UIKit
 
 protocol MovieDetailsRouterInterface {
     var view: UIViewController? { get set }
-    var presenter: MovieDetailsPresenterInterface? { get set }
+    var presenter: MovieDetailsRouterToPresenterInterface? { get set }
     static func createModule(movieId: Int?) -> UIViewController
     func navigateToCastDetails(castId: Int?)
 }
@@ -18,13 +18,13 @@ protocol MovieDetailsRouterInterface {
 class MovieDetailsRouter: MovieDetailsRouterInterface {
     
     var view: UIViewController?
-    var presenter: MovieDetailsPresenterInterface?
+    var presenter: MovieDetailsRouterToPresenterInterface?
     
     static func createModule(movieId: Int? = nil) -> UIViewController {
         let router = MovieDetailsRouter()
         let view = MovieDetailsViewController()
-        var presenter: MovieDetailsPresenterInterface = MovieDetailsPresenter(movieId: movieId)
-        var interactor: MovieDetailsInteractorInterface = MovieDetailsInteractor()
+        var presenter: MovieDetailsViewToPresenterInterface & MovieDetailsInteractorToPresenterInterface & MovieDetailsRouterToPresenterInterface = MovieDetailsPresenter(movieId: movieId)
+        var interactor: MovieDetailsInteractorInterface = MovieDetailsInteractor(presenter: presenter)
 
         view.presenter = presenter 
         presenter.interactor = interactor

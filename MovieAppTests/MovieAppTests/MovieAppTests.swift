@@ -1,10 +1,11 @@
 //
-//  MovieAppTests.swift
+//  MovieAppTest.swift
 //  MovieAppTests
 //
-//  Created by Khushbuben Patel on 25/10/23.
+//  Created by Khushbuben Patel on 08/11/23.
 //
 
+import Foundation
 import XCTest
 @testable import MovieApp
 

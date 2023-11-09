@@ -98,7 +98,7 @@ struct SpokenLanguages: Codable {
     }
 }
 
-struct MovieTVDetailsModel {
+struct MovieTVDetailsModel: Codable {
     let image: String
     let title: String
     let genre: String

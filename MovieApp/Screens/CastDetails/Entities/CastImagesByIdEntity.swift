@@ -1,5 +1,5 @@
 //
-//  PersonImagesByIdEntity.swift
+//  CastImagesByIdEntity.swift
 //  MovieApp
 //
 //  Created by Khushbuben Patel on 26/10/23.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PersonImagesByIdEntity: Codable {
+struct CastImagesByIdEntity: Codable {
     let id: Int
     let profiles: [Profiles]
 }

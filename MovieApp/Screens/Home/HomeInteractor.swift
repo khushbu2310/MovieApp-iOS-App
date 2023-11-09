@@ -8,21 +8,22 @@
 import Foundation
 
 protocol HomeInteractorInterface {
-    var presenter: HomePresenterInterface? { get set }
-    func getMovieData(type: EndPointAPIType, movieType: MovieTypesEnum)
+    var presenter: HomeInteractorToPresenterInterface? { get set }
+    func getMovieData<T: Codable>(type: EndPointAPIType, movieType: MovieTypesEnum, modelType: T.Type)
 }
 
 class HomeInteractor: HomeInteractorInterface {
     
-    var presenter: HomePresenterInterface?
-    private let movieRepo: MovieRepositoryDelegate
-    
-    init(movieRepo: MovieRepositoryDelegate = MovieRepository()) {
+    var presenter: HomeInteractorToPresenterInterface?
+    private let movieRepo: MovieAppRepositoryDelegate
+        
+    init(presenter: HomeInteractorToPresenterInterface?, movieRepo: MovieAppRepositoryDelegate = MovieAppRepository()) {
+        self.presenter = presenter
         self.movieRepo = movieRepo
     }
     
-    func getMovieData(type: EndPointAPIType, movieType: MovieTypesEnum) {
-        movieRepo.getMovieData(modelType: MovieResult.self, type: type) { [self] response in
+    func getMovieData<T: Codable>(type: EndPointAPIType, movieType: MovieTypesEnum, modelType: T.Type) {
+        movieRepo.getMovieAppData(modelType: modelType, type: type) { [self] response in
             switch response {
             case .success(let movie):
                 presenter?.getMovieSuccess(movie: movie, enumType: movieType)

@@ -10,7 +10,7 @@ import UIKit
 
 protocol HomeRouterInterface {
     var view: UINavigationController? { get set }
-    var presenter: HomePresenterInterface? { get set }
+    var presenter: HomeRouterToPresenterInterface? { get set }
     static func createModule() -> UINavigationController
     
     func navigateToMovies(data: MovieResult?, type: String)
@@ -19,15 +19,15 @@ protocol HomeRouterInterface {
 
 class HomeRouter: HomeRouterInterface {
         
-    var presenter: HomePresenterInterface?
+    var presenter: HomeRouterToPresenterInterface?
     var view: UINavigationController?
     var movieViewController: UINavigationController?
     
     static func createModule() -> UINavigationController {
         let router = HomeRouter()
         let view = HomeViewController()
-        var presenter: HomePresenterInterface = HomePresenter()
-        var interactor: HomeInteractorInterface = HomeInteractor()
+        var presenter: HomeViewToPresenterInterface & HomeRouterToPresenterInterface & HomeInteractorToPresenterInterface = HomePresenter()
+        var interactor: HomeInteractorInterface = HomeInteractor(presenter: presenter)
 
         view.presenter = presenter
         presenter.interactor = interactor

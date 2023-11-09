@@ -9,13 +9,13 @@ import Foundation
 import UIKit
 
 protocol TVShowsViewInterface {
-    var presenter: TVShowsPresenterInterface? { get set }
+    var presenter: TVShowsViewToPresenterInterface? { get set }
     func popularTVShowSuccess(cellData: [CellDataObject])
     func popularTVShowFailure(error: Error)
 }
 
 class TVShowsViewController: UIViewController, TVShowsViewInterface {
-    var presenter: TVShowsPresenterInterface?
+    var presenter: TVShowsViewToPresenterInterface?
     
     let tvShowView: UIView = {
         let view = UIView()

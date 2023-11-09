@@ -10,20 +10,20 @@ import UIKit
 
 protocol TVShowDetailsRouterInterface {
     var view: UIViewController? { get set }
-    var presenter: TVShowDetailsPresenterInterface? { get set }
+    var presenter: TVShowDetailsRouterToPresenterInterface? { get set }
     static func createModule(tvShowId: Int?) -> UIViewController
     func navigateToCastDetails(castId: Int?)
 }
 
 class TVShowDetailsRouter: TVShowDetailsRouterInterface {
     var view: UIViewController?
-    var presenter: TVShowDetailsPresenterInterface?
+    var presenter: TVShowDetailsRouterToPresenterInterface?
     
-    static func createModule(tvShowId: Int?) -> UIViewController {
+    static func createModule(tvShowId: Int? = nil) -> UIViewController {
         let router = TVShowDetailsRouter()
         let view = TVShowDetailsViewController()
-        var presenter: TVShowDetailsPresenterInterface = TVShowDetailsPresenter(tvShowId: tvShowId)
-        var interactor: TVShowDetailsInteractorInterface = TVShowDetailsInteractor()
+        var presenter: TVShowDetailsViewToPresenterInterface & TVShowDetailsInteractorToPresenterInterface & TVShowDetailsRouterToPresenterInterface = TVShowDetailsPresenter(tvShowId: tvShowId)
+        var interactor: TVShowDetailsInteractorInterface = TVShowDetailsInteractor(presenter: presenter)
         
         view.presenter = presenter
         presenter.interactor = interactor

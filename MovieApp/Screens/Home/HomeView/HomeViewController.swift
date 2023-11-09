@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 protocol HomeViewInterface {
-    var presenter: HomePresenterInterface? { get set }
+    var presenter: HomeViewToPresenterInterface? { get set }
     func getMovieDataSuccess()
     func getMovieDataFailure(error: Error)
     func reloadTableView()
@@ -17,7 +17,7 @@ protocol HomeViewInterface {
 }
 
 class HomeViewController: UIViewController, HomeViewInterface {
-    var presenter: HomePresenterInterface?
+    var presenter: HomeViewToPresenterInterface?
     
     private let mainView: UIView = {
         let mainView = UIView()
@@ -78,10 +78,10 @@ class HomeViewController: UIViewController, HomeViewInterface {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter?.getMoviesData()
         setupTitle()
         setupUI()
         setupConstraints()
-        presenter?.getMoviesData()
     }
     
     func setupTitle() {
@@ -135,7 +135,7 @@ class HomeViewController: UIViewController, HomeViewInterface {
             headerImage.leadingAnchor.constraint(equalTo: header.leadingAnchor),
             headerImage.trailingAnchor.constraint(equalTo: header.trailingAnchor),
             
-            headerLabel.topAnchor.constraint(equalTo: headerImage.bottomAnchor, constant: -30),
+            headerLabel.topAnchor.constraint(equalTo: headerImage.bottomAnchor, constant: -40),
             headerLabel.leadingAnchor.constraint(equalTo: header.leadingAnchor),
             headerLabel.trailingAnchor.constraint(equalTo: header.trailingAnchor),
             
@@ -157,13 +157,16 @@ class HomeViewController: UIViewController, HomeViewInterface {
     }
         
     func setupStars(voteAvg: Double) {
-        let index = Int((voteAvg/2.0).rounded())
-        setStarIndex(start: 1, end: index, img: "starFilled")
-        setStarIndex(start: index + 1, end: 5, img: "starEmpty")
+        var index = Int((voteAvg/2.0).rounded())
+        setStarIndex(start: 0, end: index, img: "starFilled")
+        let remainingStars = 5 - index
+        if remainingStars > 0 {
+            setStarIndex(start: index, end: 5, img: "starEmpty")
+        }
     }
     
     func setStarIndex(start: Int, end: Int, img: String) {
-        for _ in start...end {
+        for _ in start..<end {
             let imageView = UIImageView()
             imageView.image = UIImage(named: img)!
             starStackView.addArrangedSubview(imageView)
@@ -208,7 +211,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return presenter?.numberOfSection() ?? 0
+        return presenter?.numberOfSections ?? 0
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -216,13 +219,19 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return presenter?.cellForRowAt(tableView: tableView, indexPath: indexPath) ?? UITableViewCell()
+        let cell = tableView.dequeueReusableCell(withIdentifier: HomeTableViewCell.identifier, for: indexPath) as? HomeTableViewCell
+        cell?.movieCollectionView.collectionView.tag = indexPath.section
+        let collectionViewData: [CellDataObject] = presenter?.configMovieDetails(index: indexPath.section) ?? []
+        cell?.movieCollectionView.configContent(dataList: collectionViewData)
+        cell?.movieCollectionView.collectionView.reloadData()
+        return cell ?? UITableViewCell()
+
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = SectionHeaderView()
         headerView.delegate = self
-        headerView.titleLabel.text = presenter?.headerTitle[section]
+        headerView.titleLabel.text = presenter?.configHeaderTitle(index: section)
         headerView.showAllBtn.tag = section
         return headerView
     }
@@ -234,12 +243,22 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        return presenter?.genreCollectionCellForItemAt(collectionView: collectionView, indexPath: indexPath) ?? UICollectionViewCell()
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GenreCollectionViewCell.identifier, for: indexPath) as? GenreCollectionViewCell
+        cell?.genreDelegate = self
+        cell?.genreButton.tag = indexPath.row
+        cell?.configGenreType(data: presenter?.genreTypeList[indexPath.row])
+        return cell ?? UICollectionViewCell()
     }
 }
 
 extension HomeViewController: SectionHeaderToView {
     func showAllBtnTapped(index: Int) {
         presenter?.showAllBtnTapped(index: index)
+    }
+}
+
+extension HomeViewController: GenreCollectionInterface {
+    func didTapGenreBtn(_ index: Int) {
+        presenter?.didTapGenreBtn(index)
     }
 }

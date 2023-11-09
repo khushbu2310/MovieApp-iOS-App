@@ -8,53 +8,29 @@
 import Foundation
 
 protocol MovieDetailsInteractorInterface {
-    var presenter: MovieDetailsPresenterInterface? { get set }
-    func getMovieDetails(id: Int)
-    func getCastDetails(id: Int)
-    func getMovieVideos(id: Int)
+    var presenter: MovieDetailsInteractorToPresenterInterface? { get set }
+    func getMovieData<T: Codable>(modelType: T.Type, type: EndPointAPIType)
 }
 
 class MovieDetailsInteractor: MovieDetailsInteractorInterface {
         
-    var presenter: MovieDetailsPresenterInterface?
-    private let movieRepo: MovieRepositoryDelegate
-    private let castRepo: CastRepositoryDelegate
+    var presenter: MovieDetailsInteractorToPresenterInterface?
+    private let movieRepo: MovieAppRepositoryDelegate
     
-    init(movieRepo: MovieRepositoryDelegate = MovieRepository(), castRepo: CastRepositoryDelegate = CastRepository()) {
+    init(presenter: MovieDetailsInteractorToPresenterInterface?, movieRepo: MovieAppRepositoryDelegate = MovieAppRepository()) {
+        self.presenter = presenter
         self.movieRepo = movieRepo
-        self.castRepo = castRepo
     }
     
-    func getMovieDetails(id: Int) {
-        movieRepo.getMovieData(modelType: MovieByIDEntity.self, type: EndPointMovie.movieDetails(id: id)) { [self] response in
+    func getMovieData<T: Codable>(modelType: T.Type, type: EndPointAPIType) {
+        movieRepo.getMovieAppData(modelType: modelType, type: type) { [self] response in
             switch response {
             case .success(let movieDetails):
-                presenter?.getMovieDetailsSuccess(data: movieDetails)
+                presenter?.getMovieDetailsSuccess(movieDetailsData: movieDetails)
             case .failure(let error):
                 presenter?.getMovieDetailsFailure(error: error)
             }
         }
-    }
-    
-    func getCastDetails(id: Int) {
-        castRepo.getCastData(modelType: CastEntity.self, type: EndPointCast.moviesCastList(id: id)) { [self] response in
-            switch response {
-            case .success(let castDetails):
-                presenter?.getCastDetailsSuccess(data: castDetails)
-            case .failure(let error):
-                presenter?.getCastDetailsFailure(error: error)
-            }
-        }
-    }
-    
-    func getMovieVideos(id: Int) {
-        movieRepo.getMovieData(modelType: VideoModel.self, type: EndPointMovie.movieVideoDetails(id: id)) { [self] response in
-            switch response {
-            case .success(let movieDetails):
-                presenter?.getVideosSuccess(data: movieDetails)
-            case .failure(let error):
-                presenter?.getVideosFailure(error: error)
-            }
-        }
+
     }
 }

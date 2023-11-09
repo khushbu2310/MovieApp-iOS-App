@@ -10,11 +10,9 @@ import Foundation
 enum EndPointCast {
     case tvShowsCastList(id: Int)
     case moviesCastList(id: Int)
-    case personDetailsById(id: Int)
-    case personImagesById(id: Int)
+    case castDetailsById(id: Int)
+    case castImagesById(id: Int)
     case knownForCombine(id: Int)
-    case knownForMovies(id: Int)
-    case knownForTvShows(id: Int)
 }
 
 extension EndPointCast: EndPointAPIType {
@@ -28,16 +26,12 @@ extension EndPointCast: EndPointAPIType {
             return "tv/\(id)/credits"
         case .moviesCastList(let id):
             return "movie/\(id)/credits"
-        case .personDetailsById(let id):
+        case .castDetailsById(let id):
             return "person/\(id)"
-        case .personImagesById(let id):
+        case .castImagesById(let id):
             return "person/\(id)/images"
         case .knownForCombine(let id):
             return "person/\(id)/combined_credits"
-        case .knownForMovies(let id):
-            return "person/\(id)/movie_credits"
-        case .knownForTvShows(let id):
-            return "person/\(id)/tv_credits"
         }
     }
     
@@ -51,7 +45,7 @@ extension EndPointCast: EndPointAPIType {
     
     var queryItems: [URLQueryItem]? {
         switch self {
-        case .tvShowsCastList(let id), .moviesCastList(let id), .personDetailsById(let id), .personImagesById(let id), .knownForCombine(let id), .knownForMovies(let id), .knownForTvShows(let id):
+        case .tvShowsCastList(let id), .moviesCastList(let id), .castDetailsById(let id), .castImagesById(let id), .knownForCombine(let id):
             return [
                 URLQueryItem(name: "api_key", value: Constants.APIKey),
                 URLQueryItem(name: "language", value: "en-US"),

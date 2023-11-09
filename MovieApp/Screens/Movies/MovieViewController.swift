@@ -9,14 +9,13 @@ import Foundation
 import UIKit
 
 protocol MovieViewInterface {
-    var presenter: MoviePresenterInterface? { get set }
+    var presenter: MovieViewToPresenterInterface? { get set }
     func popularMovieSuccess(cellData: [CellDataObject])
     func popularMovieFailure(error: Error)
 }
 
 class MovieViewController: UIViewController, MovieViewInterface {
-    var presenter: MoviePresenterInterface?
-    var popularMovieListData: MovieResult?
+    var presenter: MovieViewToPresenterInterface?
     
     let movieView: UIView = {
         let view = UIView()

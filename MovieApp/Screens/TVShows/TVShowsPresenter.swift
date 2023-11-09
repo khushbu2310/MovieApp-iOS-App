@@ -8,36 +8,44 @@
 import Foundation
 import UIKit
 
-protocol TVShowsPresenterInterface {
+protocol TVShowsViewToPresenterInterface {
     var view: TVShowsViewInterface? { get set }
-    var router: TVShowsRouterInterface? { get set }
-    var interactor: TVShowsInteractorInterface? { get set }
-    
-    var popularTVShowList: TVShowResult? { get set }
     func getPopularTVShowList()
-    func getPopularTVShowSuccess(tvShow: TVShowResult)
-    func getPopularTVShowFailure(error: Error)
     func navigateToTVShowDetails(indexPath: IndexPath)
 }
 
-class TVShowsPresenter: TVShowsPresenterInterface {
+protocol TVShowsInteractorToPresenterInterface {
+    var interactor: TVShowsInteractorInterface? { get set }
+    var popularTVShowList: TVShowResult? { get set }
+    func getPopularTVShowSuccess<T: Codable>(tvShow: T)
+    func getPopularTVShowFailure(error: Error)
+}
+
+protocol TVShowsRouterToPresenterInterface {
+    var router: TVShowsRouterInterface? { get set }
+}
+
+class TVShowsPresenter: TVShowsViewToPresenterInterface, TVShowsInteractorToPresenterInterface, TVShowsRouterToPresenterInterface {
     
     var view: TVShowsViewInterface?
     var router: TVShowsRouterInterface?
     var interactor: TVShowsInteractorInterface?
     var popularTVShowList: TVShowResult?
+    var error: DataError?
     
     func getPopularTVShowList() {
-        interactor?.getPopularTVShow()
+        interactor?.getPopularTVShow(type: EndPointTVShow.popularTVShows, modelType: TVShowResult.self)
     }
 
-    func getPopularTVShowSuccess(tvShow: TVShowResult) {
+    func getPopularTVShowSuccess<T: Codable>(tvShow: T) {
+        guard let tvShow = tvShow as? TVShowResult else { return }
         self.popularTVShowList = tvShow
         let tvShowData = tvShow.results.compactMap({ CellDataObject(title: $0.name, posterPath: $0.posterPath)})
         view?.popularTVShowSuccess(cellData: tvShowData)
     }
     
     func getPopularTVShowFailure(error: Error) {
+        self.error = error as? DataError
         view?.popularTVShowFailure(error: error)
     }
         

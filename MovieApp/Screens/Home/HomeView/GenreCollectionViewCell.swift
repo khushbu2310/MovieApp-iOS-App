@@ -45,16 +45,12 @@ class GenreCollectionViewCell: UICollectionViewCell {
             genreButton.heightAnchor.constraint(equalToConstant: 30),
             genreButton.topAnchor.constraint(equalTo: self.topAnchor),
             genreButton.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            genreButton.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-//            genreButton.bottomAnchor.constraint(equalTo: self.bottomAnchor)
+            genreButton.trailingAnchor.constraint(equalTo: self.trailingAnchor)
         ])
     }
     
     @objc func genreButtonTapped() {
         genreDelegate?.didTapGenreBtn(genreButton.tag)
-        if genreButton.isHighlighted {
-            genreButton.backgroundColor = .red
-        }
     }
     
     func configGenreType(data: Genres?) {

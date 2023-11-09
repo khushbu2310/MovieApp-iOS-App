@@ -8,42 +8,45 @@
 import Foundation
 import UIKit
 
-protocol MoviePresenterInterface {
+protocol MovieViewToPresenterInterface {
     var view: MovieViewInterface? { get set }
-    var router: MovieRouterInterface? { get set }
-    var interactor: MovieInteractorInterface? { get set }
-    
-    var movieList: MovieResult? { get set }
     func getMovieList()
-    func getPopularMovieSuccess(movie: MovieResult)
-    func getPopularMovieFailure(error: Error)
     func configureMovies(data: MovieResult?, type: String)
-    
     func navigateToMovieDetails(indexPath: IndexPath)
 }
 
-protocol MoviePresenterToView {
-    var presenter: MoviePresenter { get set }
+protocol MovieInteractorToPresenterInterface {
+    var interactor: MovieInteractorInterface? { get set }
+    var movieList: MovieResult? { get set }
+    func getPopularMovieSuccess<T: Codable>(movie: T)
+    func getPopularMovieFailure(error: Error)
 }
 
-class MoviePresenter: MoviePresenterInterface {
+protocol MovieRouterToPresenterInterface {
+    var router: MovieRouterInterface? { get set }
+}
+
+class MoviePresenter: MovieViewToPresenterInterface, MovieInteractorToPresenterInterface, MovieRouterToPresenterInterface {
     
     var view: MovieViewInterface?
     var router: MovieRouterInterface?
     var interactor: MovieInteractorInterface?
     var movieList: MovieResult?
+    var error: DataError?
     
     func getMovieList() {
-        interactor?.getMovieData()
+        interactor?.getMovieData(type: EndPointMovie.popularMovie, modelType: MovieResult.self)
     }
     
-    func getPopularMovieSuccess(movie: MovieResult) {
+    func getPopularMovieSuccess<T: Codable>(movie: T) {
+        guard let movie = movie as? MovieResult else { return }
         self.movieList = movie
         let movieCellData = movie.results.compactMap({ CellDataObject(title: $0.originalTitle, posterPath: $0.posterPath)})
         view?.popularMovieSuccess(cellData: movieCellData)
     }
     
     func getPopularMovieFailure(error: Error) {
+        self.error = error as? DataError
         view?.popularMovieFailure(error: error)
     }
         

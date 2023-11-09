@@ -8,52 +8,27 @@
 import Foundation
 
 protocol TVShowDetailsInteractorInterface {
-    var presenter: TVShowDetailsPresenterInterface? { get set }
-    func getTVShowDetails(id: Int)
-    func getCastDetails(id: Int)
-    func getTvShowVideos(id: Int)
+    var presenter: TVShowDetailsInteractorToPresenterInterface? { get set }
+    func getTVShowData<T: Codable>(modelType: T.Type, type: EndPointAPIType)
 }
 
 class TVShowDetailsInteractor: TVShowDetailsInteractorInterface {
-    var presenter: TVShowDetailsPresenterInterface?
-    private let tvShowRepo: TVShowRepositoryDelegate
-    private let castRepo: CastRepositoryDelegate
     
-    init(tvShowRepo: TVShowRepositoryDelegate = TVShowRepository(), castRepo: CastRepositoryDelegate = CastRepository()) {
+    var presenter: TVShowDetailsInteractorToPresenterInterface?
+    private let tvShowRepo: MovieAppRepositoryDelegate
+    
+    init(presenter: TVShowDetailsInteractorToPresenterInterface?, tvShowRepo: MovieAppRepositoryDelegate = MovieAppRepository()) {
+        self.presenter = presenter
         self.tvShowRepo = tvShowRepo
-        self.castRepo = castRepo
     }
     
-    func getTVShowDetails(id: Int) {
-        tvShowRepo.getTVShowData(modelType: TVShowByIDEntity.self, type: EndPointTVShow.tvShowDetails(id: id)) { [self] response in
+    func getTVShowData<T: Codable>(modelType: T.Type, type: EndPointAPIType) {
+        tvShowRepo.getMovieAppData(modelType: modelType, type: type) { [self] response in
             switch response {
             case .success(let tvShowDetails):
-                presenter?.getTVShowDetailsSuccess(data: tvShowDetails)
+                presenter?.getTVShowDetailsSuccess(tvShowDetailsData: tvShowDetails)
             case .failure(let error):
                 presenter?.getTVShowDetailsFailure(error: error)
-                
-            }
-        }
-    }
-    
-    func getCastDetails(id: Int) {
-        castRepo.getCastData(modelType: CastEntity.self, type: EndPointCast.tvShowsCastList(id: id)) { [self] response in
-            switch response {
-            case .success(let castDetails):
-                presenter?.getCastDetailsSuccess(data: castDetails)
-            case .failure(let error):
-                presenter?.getCastDetailsFailure(error: error)
-            }
-        }
-    }
-    
-    func getTvShowVideos(id: Int) {
-        tvShowRepo.getTVShowData(modelType: VideoModel.self, type: EndPointTVShow.tvShowVideDetails(id: id)) { [self] response in
-            switch response {
-            case .success(let movieDetails):
-                presenter?.getVideosSuccess(data: movieDetails)
-            case .failure(let error):
-                presenter?.getVideosFailure(error: error)
             }
         }
     }

@@ -8,51 +8,28 @@
 import Foundation
 
 protocol CastDetailsInteractorInterface {
-    var presenter: CastDetailsPresenterInterface? { get set }
-    func getCastDetails(id: Int)
-    func getCastImages(id: Int)
-    func getCastCombine(id: Int)
+    var presenter: CastDetailsInteractorToPresenterInterface? { get set }
+    func getCastDetails<T: Codable>(modelType: T.Type, type: EndPointAPIType)
 }
 
 class CastDetailsInteractor: CastDetailsInteractorInterface {
-    var presenter: CastDetailsPresenterInterface?
-    private let castRepo: CastRepositoryDelegate
+    var presenter: CastDetailsInteractorToPresenterInterface?
+    private let castRepo: MovieAppRepositoryDelegate
     
-    init(castRepo: CastRepositoryDelegate = CastRepository()) {
+    init(presenter: CastDetailsInteractorToPresenterInterface?, castRepo: MovieAppRepositoryDelegate = MovieAppRepository()) {
+        self.presenter = presenter
         self.castRepo = castRepo
     }
-    
-    func getCastDetails(id: Int) {
-        castRepo.getCastData(modelType: PersonDetailsByIdEntity.self, type: EndPointCast.personDetailsById(id: id)) { [self] response in
+        
+    func getCastDetails<T: Codable>(modelType: T.Type, type: EndPointAPIType) {
+        castRepo.getMovieAppData(modelType: modelType, type: type) { [self] response in
             switch response {
-            case .success(let personDetails):
-                presenter?.getPersonDetailsSuccess(data: personDetails)
+            case .success(let castData):
+                presenter?.getCastDataSuccess(castData: castData)
             case .failure(let error):
-                presenter?.getPersonDetailsFailure(error: error)
+                presenter?.getCastDataFailure(error: error)
             }
+            
         }
-    }
-    
-    func getCastImages(id: Int) {
-        castRepo.getCastData(modelType: PersonImagesByIdEntity.self, type: EndPointCast.personImagesById(id: id)) { [self] response in
-            switch response {
-            case .success(let personDetails):
-                presenter?.getCastImagesSuccess(data: personDetails)
-            case .failure(let error):
-                presenter?.getCastImagesFailure(error: error)
-            }
-        }
-    }
-    
-    func getCastCombine(id: Int) {
-        castRepo.getCastData(modelType: CastMovieTVModel.self, type: EndPointCast.knownForCombine(id: id)) { [self] response in
-            switch response {
-            case .success(let personDetails):
-                presenter?.getCastCombineSuccess(data: personDetails)
-            case .failure(let error):
-                presenter?.getCastCombineFailure(error: error)
-            }
-        }
-
     }
 }

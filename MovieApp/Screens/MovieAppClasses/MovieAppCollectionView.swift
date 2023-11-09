@@ -58,17 +58,22 @@ extension MovieAppCollectionView: UICollectionViewDelegate, UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
+        
         switch cell {
+            
         case is MovieAppCollectionViewCell:
             guard let cell = cell as? MovieAppCollectionViewCell else { return UICollectionViewCell() }
             cell.configureCellDetails(dataList[indexPath.row])
             return cell
+            
         case is YoutubeCollectionViewCell:
             guard let cell = cell as? YoutubeCollectionViewCell else { return UICollectionViewCell() }
             cell.configureCellDetails(dataList[indexPath.row])
             return cell
+            
         default:
             return UICollectionViewCell()
+            
         }
     }
     

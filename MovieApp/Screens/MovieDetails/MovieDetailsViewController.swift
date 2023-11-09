@@ -9,15 +9,11 @@ import Foundation
 import UIKit
 
 protocol MovieDetailsViewInterface {
-    var presenter: MovieDetailsPresenterInterface? { get set }
+    var presenter: MovieDetailsViewToPresenterInterface? { get set }
     func getMovieDetailsSuccess(movieDetails: MovieTVDetailsModel)
-    func getMovieDetailsFailure(error: Error)
-    
     func getCastsSuccess(castsData: [CellDataObject])
-    func getCastsFailure(error: Error)
-    
     func getVideosSuccess(castData: [String])
-    func getVideosFailure(error: Error)
+    func getMovieDataFailure(error: Error)
 }
 
 protocol MovieDetailsToViewInterface: AnyObject {
@@ -26,7 +22,7 @@ protocol MovieDetailsToViewInterface: AnyObject {
 
 class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
     
-    var presenter: MovieDetailsPresenterInterface?
+    var presenter: MovieDetailsViewToPresenterInterface?
     var delegate: MovieDetailsToViewInterface?
     
     private let scrollView: UIScrollView = {
@@ -81,7 +77,7 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter?.getDetails()
+        presenter?.getMovieDetails()
         delegate = headerDetails as? MovieDetailsToViewInterface
         castCollectionView.delegate = self
         setupUI()
@@ -165,9 +161,6 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
         }
     }
     
-    func getMovieDetailsFailure(error: Error) {
-        print(error)
-    }
     
     func getCastsSuccess(castsData: [CellDataObject]) {
         DispatchQueue.main.async {
@@ -175,11 +168,7 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
             self.castCollectionView.collectionView.reloadData()
         }
     }
-    
-    func getCastsFailure(error: Error) {
-        print(error)
-    }
-    
+        
     func getVideosSuccess(castData: [String]) {
         DispatchQueue.main.async {
             self.videoCollectionView.configContent(dataList: castData)
@@ -188,7 +177,7 @@ class MovieDetailsViewController: UIViewController, MovieDetailsViewInterface {
 
     }
 
-    func getVideosFailure(error: Error) {
+    func getMovieDataFailure(error: Error) {
         print(error)
     }
 }

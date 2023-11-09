@@ -9,20 +9,18 @@ import Foundation
 import UIKit
 
 protocol CastDetailsViewInterface {
-    var presenter: CastDetailsPresenterInterface? { get set }
-    func getPersonDetailsSuccess(castDetails: PersonDetailsByIdEntity)
-    func getPersonDetailsFailure(error: Error)
+    var presenter: CastDetailsViewToPresenterInterface? { get set }
     
+    func getCastDetailsSuccess(castDetails: CastDetailsByIdEntity)
     func getCastImagesSuccess(castDetails: [CellDataObject])
-    func getCastImagesFailure(error: Error)
-    
     func getCastCombineSuccess(castDetails: [CellDataObject])
-    func getCastCombineFailure(error: Error)
+    
+    func getCastDataFailure(error: Error)
 }
 
 class CastDetailsViewController: UIViewController, CastDetailsViewInterface {
     
-    var presenter: CastDetailsPresenterInterface?
+    var presenter: CastDetailsViewToPresenterInterface?
     
     let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -108,7 +106,7 @@ class CastDetailsViewController: UIViewController, CastDetailsViewInterface {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter?.getDetails()
+        presenter?.getCastData()
         setupUI()
         setupConstraints()
     }
@@ -156,11 +154,8 @@ class CastDetailsViewController: UIViewController, CastDetailsViewInterface {
     func setupCastDetailsConstraints() {
         NSLayoutConstraint.activate([
             headerImage.topAnchor.constraint(equalTo: headerView.topAnchor),
-//            headerImage.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
             headerImage.heightAnchor.constraint(equalToConstant: 150),
             headerImage.widthAnchor.constraint(equalTo: headerView.widthAnchor, multiplier: 0.4),
-//            headerImage.trailingAnchor.constraint(equalTo: headerView.trailingAnchor),
-
             headerImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             headerTitle.topAnchor.constraint(equalTo: headerImage.bottomAnchor, constant: 20),
@@ -204,18 +199,14 @@ class CastDetailsViewController: UIViewController, CastDetailsViewInterface {
         ])
     }
     
-    func getPersonDetailsSuccess(castDetails: PersonDetailsByIdEntity) {
+    func getCastDetailsSuccess(castDetails: CastDetailsByIdEntity) {
         DispatchQueue.main.async {
             self.title = castDetails.name
-            self.headerImage.setImage(with: (Constants.imgBaseUrl + castDetails.profilePath))
+            self.headerImage.setImage(with: (Constants.imgBaseUrl + (castDetails.profilePath ?? "")))
             self.headerTitle.text = castDetails.name
             self.headerGenre.text = castDetails.knownForDepartment
             self.headerDescription.text = castDetails.biography
         }
-    }
-    
-    func getPersonDetailsFailure(error: Error) {
-        print(error)
     }
     
     func getCastImagesSuccess(castDetails: [CellDataObject]) {
@@ -224,11 +215,7 @@ class CastDetailsViewController: UIViewController, CastDetailsViewInterface {
             self.photoCollection.collectionView.reloadData()
         }
     }
-    
-    func getCastImagesFailure(error: Error) {
-        print(error)
-    }
-    
+        
     func getCastCombineSuccess(castDetails: [CellDataObject]) {
         DispatchQueue.main.async {
             self.knownForCollection.configContent(dataList: castDetails)
@@ -236,7 +223,7 @@ class CastDetailsViewController: UIViewController, CastDetailsViewInterface {
         }
     }
     
-    func getCastCombineFailure(error: Error) {
+    func getCastDataFailure(error: Error) {
         print(error)
     }
 }

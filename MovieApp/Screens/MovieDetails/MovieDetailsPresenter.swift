@@ -7,50 +7,72 @@
 
 import Foundation
 
-protocol MovieDetailsPresenterInterface {
+protocol MovieDetailsViewToPresenterInterface {
     var view: MovieDetailsViewInterface? { get set }
-    var router: MovieDetailsRouterInterface? { get set }
-    var interactor: MovieDetailsInteractorInterface? { get set }
-    
-    var movieId: Int? { get set }
-    func getDetails()
-    var castList: CastEntity? { get set }
-    
-    func getMovieDetailsSuccess(data: MovieByIDEntity)
-    func getMovieDetailsFailure(error: Error)
-    
-    func getCastDetailsSuccess(data: CastEntity)
-    func getCastDetailsFailure(error: Error)
-    
-    func getVideosSuccess(data: VideoModel)
-    func getVideosFailure(error: Error)
-    
+    func getMovieDetails()
     func navigateToCastDetails(indexPath: IndexPath)
 }
 
-class MovieDetailsPresenter: MovieDetailsPresenterInterface {
+protocol MovieDetailsInteractorToPresenterInterface {
+    var interactor: MovieDetailsInteractorInterface? { get set }
+    var castList: CastEntity? { get set }
+    func getMovieDetailsSuccess<T: Codable>(movieDetailsData: T)
+    func getMovieDetailsFailure(error: Error)
+}
+
+protocol MovieDetailsRouterToPresenterInterface {
+    var router: MovieDetailsRouterInterface? { get set }
+    var movieId: Int? { get set }
+}
+
+class MovieDetailsPresenter: MovieDetailsViewToPresenterInterface, MovieDetailsInteractorToPresenterInterface, MovieDetailsRouterToPresenterInterface {
         
     var view: MovieDetailsViewInterface?
     var router: MovieDetailsRouterInterface?
     var interactor: MovieDetailsInteractorInterface?
     var movieId: Int?
     var castList: CastEntity?
+    var movieDetails: MovieByIDEntity?
+    var videoDetails: VideoModel?
+    var error: DataError?
     
     init(movieId: Int?) {
         self.movieId = movieId
     }
     
-    func getDetails() {
-        interactor?.getMovieDetails(id: movieId ?? 500)
-        interactor?.getCastDetails(id: movieId ?? 500)
-        interactor?.getMovieVideos(id: movieId ?? 500)
+    func getMovieDetails() {
+        interactor?.getMovieData(modelType: MovieByIDEntity.self, type: EndPointMovie.movieDetails(id: movieId ?? 500))
+        interactor?.getMovieData(modelType: CastEntity.self, type: EndPointCast.moviesCastList(id: movieId ?? 500))
+        interactor?.getMovieData(modelType: VideoModel.self, type: EndPointMovie.movieVideoDetails(id: movieId ?? 500))
     }
 
-    func getMovieDetailsSuccess(data: MovieByIDEntity) {
-        convertDataToDetailsModel(data: data)
+    func getMovieDetailsSuccess<T: Codable>(movieDetailsData: T) {
+        switch movieDetailsData {
+            
+        case is MovieByIDEntity:
+            guard let movieDetailsData = movieDetailsData as? MovieByIDEntity else { return }
+            self.movieDetails = movieDetailsData
+            let movieData = convertDataToDetailsModel(data: movieDetailsData)
+            view?.getMovieDetailsSuccess(movieDetails: movieData)
+            
+        case is CastEntity:
+            guard let castDetails = movieDetailsData as? CastEntity else { return }
+            self.castList = castDetails
+            let castData = castDetails.cast.compactMap({ CellDataObject(title: $0.name, posterPath: $0.profilePath ?? "")})
+            view?.getCastsSuccess(castsData: castData)
+            
+        case is VideoModel:
+            guard let videoDetails = movieDetailsData as? VideoModel else { return }
+            self.videoDetails = videoDetails
+            let videoData = videoDetails.results.compactMap({ $0.key })
+            view?.getVideosSuccess(castData: videoData)
+            
+        default:
+            break
+        }
     }
     
-    func convertDataToDetailsModel(data: MovieByIDEntity) {
+    func convertDataToDetailsModel(data: MovieByIDEntity) -> MovieTVDetailsModel {
         let img = Constants.imgBaseUrl + (data.backdropPath ?? "")
         let title = data.title
         let genresList = data.genres
@@ -58,7 +80,9 @@ class MovieDetailsPresenter: MovieDetailsPresenterInterface {
         genresList.forEach({ item in
             genre = genre + item.name + "/"
         })
-        genre.removeLast()
+        if genre.isEmpty == false {
+            genre.removeLast()
+        }
         let voteCount = "\(data.voteCount) votes"
         let voteAverage = data.voteAverage
         let date: String = data.releaseDate.covertDate(date: data.releaseDate)
@@ -67,32 +91,14 @@ class MovieDetailsPresenter: MovieDetailsPresenterInterface {
         let description = data.overview
         
         let movieDetails = MovieTVDetailsModel(image: img, title: title, genre: genre, voteCount: voteCount, voteAvg: voteAverage, date: date, description: description, runtime: runtime, language: language, episodes: nil, seasons: nil)
-        view?.getMovieDetailsSuccess(movieDetails: movieDetails)
+        return movieDetails
     }
     
     func getMovieDetailsFailure(error: Error) {
-        view?.getMovieDetailsFailure(error: error)
+        self.error = error as? DataError
+        view?.getMovieDataFailure(error: error)
     }
-
-    func getCastDetailsSuccess(data: CastEntity) {
-        self.castList = data
-        let castDetails = (data.cast.compactMap({ CellDataObject(title: $0.name, posterPath: $0.profilePath ?? "")}))
-        view?.getCastsSuccess(castsData: castDetails)
-    }
-    
-    func getCastDetailsFailure(error: Error) {
-        view?.getCastsFailure(error: error)
-    }
-    
-    func getVideosSuccess(data: VideoModel) {
-        let videos = data.results.compactMap({ $0.key })
-        view?.getVideosSuccess(castData: videos)
-    }
-    
-    func getVideosFailure(error: Error) {
-        view?.getVideosFailure(error: error)
-    }
-    
+            
     func navigateToCastDetails(indexPath: IndexPath) {
         let castId = castList?.cast[indexPath.row].id
         router?.navigateToCastDetails(castId: castId)

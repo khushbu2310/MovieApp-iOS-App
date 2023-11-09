@@ -41,7 +41,9 @@ class MovieAppDetailsView: UIView {
         }
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .horizontal
+//        stack.distribution = .equalSpacing
         stack.distribution = .equalSpacing
+        stack.spacing = 5
         return stack
     }()
     

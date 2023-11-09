@@ -7,18 +7,7 @@
 
 import Foundation
 
-protocol APIRouter {
-    var host: String { get }
-    var schema: String { get }
-    var path: String { get }
-    var method: String { get }
-    var queryItems: [URLQueryItem] { get }
-    var headers: [(String, String)] { get }
-    var statusCode: Int { get }
-    var body: Codable? { get }
-}
-
-typealias Handler<T> = (Result<T, APIRequestError>) -> Void
+typealias Handler<T> = (Result<T, DataError>) -> Void
 
 final class APIManager {
     static let shared = APIManager()

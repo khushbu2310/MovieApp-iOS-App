@@ -56,6 +56,6 @@ struct DateStruct: Codable {
 }
 
 struct ResponseModel {
-    let responseEnum: MovieTypesEnum
+    let responseType: MovieTypesEnum
     let data: MovieResult
 }

@@ -7,20 +7,21 @@
 
 import Foundation
 protocol TVShowsInteractorInterface {
-    var presenter: TVShowsPresenterInterface? { get set }
-    func getPopularTVShow()
+    var presenter: TVShowsInteractorToPresenterInterface? { get set }
+    func getPopularTVShow<T: Codable>(type: EndPointAPIType, modelType: T.Type)
 }
 
 class TVShowsInteractor: TVShowsInteractorInterface {
-    var presenter: TVShowsPresenterInterface?
-    private let tvShowRepo: TVShowRepositoryDelegate
+    var presenter: TVShowsInteractorToPresenterInterface?
+    private let tvShowRepo: MovieAppRepositoryDelegate
     
-    init(tvShowRepo: TVShowRepositoryDelegate = TVShowRepository()) {
+    init(presenter: TVShowsInteractorToPresenterInterface?, tvShowRepo: MovieAppRepositoryDelegate = MovieAppRepository()) {
+        self.presenter = presenter
         self.tvShowRepo = tvShowRepo
     }
     
-    func getPopularTVShow() {
-        tvShowRepo.getTVShowData(modelType: TVShowResult.self, type: EndPointTVShow.popularTVShows) { [self] response in
+    func getPopularTVShow<T: Codable>(type: EndPointAPIType, modelType: T.Type) {
+        tvShowRepo.getMovieAppData(modelType: modelType, type: type) { [self] response in
             switch response {
             case .success(let tvShow):
                 presenter?.getPopularTVShowSuccess(tvShow: tvShow)

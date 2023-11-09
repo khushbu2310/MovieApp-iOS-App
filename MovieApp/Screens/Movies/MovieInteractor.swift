@@ -8,20 +8,21 @@
 import Foundation
 
 protocol MovieInteractorInterface {
-    var presenter: MoviePresenterInterface? { get set }
-    func getMovieData()
+    var presenter: MovieInteractorToPresenterInterface? { get set }
+    func getMovieData<T: Codable>(type: EndPointAPIType, modelType: T.Type )
 }
 
 class MovieInteractor: MovieInteractorInterface {
-    var presenter: MoviePresenterInterface?
-    private let movieRepo: MovieRepositoryDelegate
-    
-    init(moviRepo: MovieRepositoryDelegate = MovieRepository()) {
-        self.movieRepo = moviRepo
+    var presenter: MovieInteractorToPresenterInterface?
+    private let movieRepo: MovieAppRepositoryDelegate
+        
+    init(presenter: MovieInteractorToPresenterInterface?, movieRepo: MovieAppRepositoryDelegate = MovieAppRepository()) {
+        self.presenter = presenter
+        self.movieRepo = movieRepo
     }
     
-    func getMovieData() {
-        movieRepo.getMovieData(modelType: MovieResult.self, type: EndPointMovie.popularMovie) { [self] response in
+    func getMovieData<T: Codable>(type: EndPointAPIType, modelType: T.Type) {
+        movieRepo.getMovieAppData(modelType: modelType, type: type) { [self] response in
             switch response {
             case .success(let movie):
                 presenter?.getPopularMovieSuccess(movie: movie)
